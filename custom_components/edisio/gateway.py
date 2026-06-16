@@ -228,6 +228,28 @@ class EdisioGateway:
         if device:
             dev_reg.async_remove_device(device.id)
 
+    # ---------------------------------------------------------------- import
+    async def async_import_emitters(self, emitters: list[dict]) -> int:
+        """Pre-enregistre des emetteurs (import Jeedom) et sauvegarde aussitot.
+
+        Les entites seront creees au rechargement de l'entree (declenche par la
+        mise a jour des options) via la re-emission de SIGNAL_DISCOVERY.
+        """
+        added = 0
+        for e in emitters:
+            dev_id = str(e.get("id", "")).upper()
+            if not dev_id or dev_id in self.banned:
+                continue
+            kinds = set(e.get("kinds", []))
+            if dev_id not in self.accepted:
+                self.accepted[dev_id] = kinds
+                added += 1
+            else:
+                self.accepted[dev_id] |= kinds
+        if added:
+            await self._store.async_save(self._data_to_save())
+        return added
+
     # ---------------------------------------------------------------- emission
     async def async_send(self, frames: list[str]) -> None:
         if self._transport is None:

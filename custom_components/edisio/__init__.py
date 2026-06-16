@@ -1,6 +1,7 @@
 """Integration Edisio pour Home Assistant."""
 from __future__ import annotations
 
+import json
 import logging
 
 import voluptuous as vol
@@ -10,14 +11,21 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 
-from . import protocol
+from . import jeedom_import, protocol
 from .const import (
-    CONF_PORT, DOMAIN, INCLUSION_TIMEOUT, PLATFORMS,
-    SERVICE_EXCLUDE, SERVICE_INCLUSION, SERVICE_LEARN, SERVICE_SEND_RAW,
+    CONF_DEVICES, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT, PLATFORMS,
+    SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION, SERVICE_LEARN,
+    SERVICE_SEND_RAW,
 )
 from .gateway import EdisioGateway
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _read_text(path: str) -> str:
+    """Lecture synchrone d'un fichier texte (appelee dans un executor)."""
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        return fh.read()
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -38,7 +46,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await gateway.async_stop()
         if not hass.data[DOMAIN]:
             for service in (SERVICE_LEARN, SERVICE_SEND_RAW,
-                            SERVICE_INCLUSION, SERVICE_EXCLUDE):
+                            SERVICE_INCLUSION, SERVICE_EXCLUDE, SERVICE_IMPORT):
                 hass.services.async_remove(DOMAIN, service)
     return unload_ok
 
@@ -86,6 +94,37 @@ def _register_services(hass: HomeAssistant) -> None:
     async def _handle_send_raw(call: ServiceCall) -> None:
         await _gateways()[0].async_send([call.data["frame"]])
 
+    async def _handle_import(call: ServiceCall) -> None:
+        path = call.data["path"]
+        raw = await hass.async_add_executor_job(_read_text, path)
+        try:
+            data = jeedom_import.load_import(json.loads(raw))
+        except (json.JSONDecodeError, jeedom_import.ImportError_) as err:
+            _LOGGER.error("Import Edisio : fichier invalide (%s)", err)
+            return
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("Import Jeedom : aucune entree Edisio configuree")
+            return
+        entry = entries[0]
+        devices = list(entry.options.get(CONF_DEVICES, []))
+        keys = {(d["edisio_id"], d.get("channel", 1)) for d in devices}
+        added = 0
+        for d in data["receivers"]:
+            if (d["edisio_id"], d["channel"]) not in keys:
+                devices.append(d)
+                keys.add((d["edisio_id"], d["channel"]))
+                added += 1
+        gateway = hass.data[DOMAIN].get(entry.entry_id)
+        emit_added = 0
+        if gateway is not None and data["emitters"]:
+            emit_added = await gateway.async_import_emitters(data["emitters"])
+        _LOGGER.info("Import Jeedom : %d recepteur(s), %d emetteur(s) ajoutes",
+                     added, emit_added)
+        # Met a jour les options -> declenche le rechargement de l'entree.
+        hass.config_entries.async_update_entry(
+            entry, options={**entry.options, CONF_DEVICES: devices})
+
     hass.services.async_register(
         DOMAIN, SERVICE_INCLUSION, _handle_inclusion,
         schema=vol.Schema({
@@ -111,4 +150,8 @@ def _register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, SERVICE_SEND_RAW, _handle_send_raw,
         schema=vol.Schema({vol.Required("frame"): cv.string}),
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_IMPORT, _handle_import,
+        schema=vol.Schema({vol.Required("path"): cv.string}),
     )

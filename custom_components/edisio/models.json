@@ -201,5 +201,22 @@
       "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
       "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
     }
+  },
+  "120C": {
+    "name": "EDR-B4 (Volet/Store)",
+    "category": "Modules Rail DIN",
+    "platform": "cover",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "frames": {
+      "open": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "close": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
+      "stop": "6C7663#ID##GROUP#021E010003640D0A"
+    }
   }
 }
