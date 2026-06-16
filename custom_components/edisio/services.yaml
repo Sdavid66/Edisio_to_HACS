@@ -65,3 +65,18 @@ send_raw:
       example: "6C7663A1B2C3D401041E010001640D0A"
       selector:
         text:
+
+import_jeedom:
+  name: Importer depuis Jeedom
+  description: >
+    Importe les equipements Edisio depuis un fichier edisio_import.json produit
+    en amont par l'outil edisio_migrate.py (recepteurs + emetteurs). Les doublons
+    sont ignores.
+  fields:
+    path:
+      name: Chemin du fichier d'import
+      description: Fichier .json accessible par Home Assistant (ex. /config/edisio_import.json).
+      required: true
+      example: "/config/edisio_import.json"
+      selector:
+        text:

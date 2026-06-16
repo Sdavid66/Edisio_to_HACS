@@ -4,3 +4,10 @@ __pycache__/
 *.swp
 .claude/
 .tmpwork/
+
+# Sauvegardes Jeedom / sorties de migration (donnees personnelles : ne pas committer)
+backup-*/
+backup-*.tar.gz
+DB_backup.sql
+edisio_import.json
+tools/jeedom_migration/edisio_import.json

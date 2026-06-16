@@ -75,9 +75,48 @@ sous le même ID appairé.
 | 116 | Micro-module EMSD-300A | light | 1 |
 | 119 | EDR-D4 (ON/OFF/Intensité) | light (variateur) | 4 |
 | 120 | EDR-B4 (ON/OFF) | switch | 4 |
+| 120C | EDR-B4 (Volet/Store) | cover | 4 |
 
 Les émetteurs (télécommandes, interrupteurs, sondes) ne figurent pas ici : ils sont
 **découverts automatiquement** à la réception et exposés en `event`/`sensor`/`binary_sensor`.
+
+## Migration depuis Jeedom (import de la base)
+
+Si vous veniez du **plugin Edisio de Jeedom**, vous pouvez réimporter vos
+équipements **sans rien réappairer**, en **deux temps** :
+
+**1. En amont (sur votre PC) — produire le fichier d'import**
+
+- Côté Jeedom : **Réglages → Système → Sauvegardes**, générez puis téléchargez
+  une sauvegarde, et récupérez le `DB_backup.sql` qu'elle contient.
+- Lancez l'outil fourni pour le convertir en fichier d'import :
+  ```bash
+  python3 tools/jeedom_migration/edisio_migrate.py chemin/vers/DB_backup.sql
+  # -> produit edisio_import.json
+  ```
+
+**2. Dans Home Assistant — charger le fichier d'import**
+
+- Déposez `edisio_import.json` dans un dossier accessible par HA (ex. `/config`,
+  via l'add-on *Samba* ou *File editor*).
+- **Paramètres → Appareils et services → Edisio → Configurer → *Importer depuis
+  Jeedom*** : indiquez le chemin du fichier, validez le récapitulatif.
+  (Aussi disponible en service `edisio.import_jeedom`.)
+
+L'import reconstruit **un appareil par groupe Edisio réellement utilisé**, en
+reprenant le **nom métier** de vos commandes Jeedom (`ON_Garage`/`OFF_Garage`
+→ « Garage »), et pré-enregistre les télécommandes/sondes comme émetteurs
+découverts. Les doublons existants sont ignorés (ré-import sans risque). Home
+Assistant ne lit jamais la base Jeedom : il ne charge que le `edisio_import.json`.
+
+> **Stores / volets — deux choix possibles.** Par défaut, les groupes pilotés en
+> Haut/Bas sont importés en **switch** (ON = Haut, OFF = Bas), trames identiques
+> à Jeedom. Pour les exposer plutôt en entités **`cover`** (modèle *EDR-B4
+> Volet/Store*, réf. `120C`), relancez l'outil avec `--stores-as-cover`. Vous
+> pouvez aussi, à tout moment, ajouter un volet manuellement via *Configurer →
+> Ajouter un module pilotable → EDR-B4 (Volet/Store)*.
+>
+> Détails et format du fichier : [`tools/jeedom_migration/`](tools/jeedom_migration/).
 
 ## Mode inclusion / exclusion
 
