@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Passerelle Edisio",
+        "description": "Choisissez le port serie du dongle USB Edisio.",
+        "data": {
+          "port": "Port serie"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Ce port est deja configure."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Modules Edisio",
+        "menu_options": {
+          "add_device": "Ajouter un module pilotable",
+          "remove_device": "Supprimer un module"
+        }
+      },
+      "add_device": {
+        "title": "Choisir le modèle Edisio",
+        "data": {
+          "model": "Modèle"
+        }
+      },
+      "remove_device": {
+        "title": "Supprimer des modules",
+        "data": {
+          "remove": "Modules a supprimer"
+        }
+      },
+      "configure_device": {
+        "title": "Configurer le recepteur",
+        "description": "Modèle : {model}. Tous les canaux du module seront créés.",
+        "data": {
+          "name": "Nom",
+          "edisio_id": "ID Edisio (vide = genere)"
+        }
+      }
+    }
+  }
+}

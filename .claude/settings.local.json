@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(df -h /tmp /private/tmp 2>&1; echo \"---\"; ls -la /private/tmp/claude-501/ 2>&1 | head -20)",
+      "Bash(CLAUDE_CODE_TMPDIR=/Users/david/Downloads/ha-edisio/.tmpwork grep -rniE \"claude|anthropic|generated with|co-authored\" /Users/david/Downloads/ha-edisio --exclude-dir=.git)",
+      "Bash(gh auth *)",
+      "Bash(git --version)",
+      "Bash(gh api *)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git -c commit.gpgsign=false commit -q -m \"Edisio integration 1.0.0\" --author=\"Sdavid66 <sdavid66@gmail.com>\")",
+      "Bash(git branch *)"
+    ]
+  }
+}

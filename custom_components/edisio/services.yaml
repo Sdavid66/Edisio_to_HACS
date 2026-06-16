@@ -1,0 +1,67 @@
+inclusion_mode:
+  name: Mode inclusion
+  description: >
+    Active (ou desactive) la decouverte des nouveaux emetteurs Edisio
+    (telecommandes, sondes…). Pendant la fenetre, appuyez sur le bouton
+    de l'emetteur pour le faire apparaitre dans Home Assistant.
+  fields:
+    enable:
+      name: Activer
+      default: true
+      selector:
+        boolean:
+    duration:
+      name: Duree (s)
+      description: Fermeture automatique de la fenetre d'inclusion (0 = sans limite).
+      default: 120
+      selector:
+        number:
+          min: 0
+          max: 600
+          unit_of_measurement: s
+
+exclude:
+  name: Exclure un emetteur
+  description: Retire un emetteur decouvert (entites + appareil), avec bannissement optionnel.
+  fields:
+    device_id:
+      name: ID Edisio
+      description: Identifiant 8 caracteres hexa de l'emetteur a exclure.
+      required: true
+      example: "1A2B3C4D"
+      selector:
+        text:
+    ban:
+      name: Bannir
+      description: Ignore definitivement cet ID (ne sera plus jamais inclus).
+      default: false
+      selector:
+        boolean:
+
+learn:
+  name: Appairer (apprentissage)
+  description: Envoie une trame d'apprentissage pour appairer un recepteur a un emetteur virtuel.
+  fields:
+    edisio_id:
+      name: ID Edisio
+      required: true
+      example: "A1B2C3D4"
+      selector:
+        text:
+    emitter_mid:
+      name: Type d'emetteur (MID)
+      description: "04 = ON/OFF, 05 = variateur, 01 = volet."
+      default: "04"
+      selector:
+        text:
+
+send_raw:
+  name: Envoyer une trame brute
+  description: Envoie une trame hexadecimale complete (avance/debug).
+  fields:
+    frame:
+      name: Trame
+      required: true
+      example: "6C7663A1B2C3D401041E010001640D0A"
+      selector:
+        text:

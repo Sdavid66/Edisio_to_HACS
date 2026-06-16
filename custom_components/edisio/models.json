@@ -1,0 +1,205 @@
+{
+  "0C": {
+    "name": "Module Fil Pilote",
+    "category": "Micros-Modules DIO-2",
+    "platform": "select",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "heat_on": "6C7663#ID##GROUP#1621050001640D0A",
+      "heat_off": "6C7663#ID##GROUP#1621050002640D0A",
+      "heat_other": "6C7663#ID##GROUP#1621050061640D0A"
+    }
+  },
+  "0F": {
+    "name": "Module Chaudière",
+    "category": "Micros-Modules DIO-2",
+    "platform": "select",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "heat_on": "6C7663#ID##GROUP#1621050001640D0A",
+      "heat_off": "6C7663#ID##GROUP#1621050002640D0A"
+    }
+  },
+  "103": {
+    "name": "Emetteur 1 bouton (ON/OFF)",
+    "category": "Actionneurs Jeedom",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#011E010001640D0A&&6C7663#ID##GROUP#011E010009640D0A",
+      "off": "6C7663#ID##GROUP#011E010002640D0A&&6C7663#ID##GROUP#011E01001B640D0A"
+    }
+  },
+  "108": {
+    "name": "Emetteur 2 boutons (ON/OFF)",
+    "category": "Actionneurs Jeedom",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#021E010001640D0A&&6C7663#ID##GROUP#021E010009640D0A",
+      "off": "6C7663#ID##GROUP#021E010002640D0A&&6C7663#ID##GROUP#021E01001B640D0A"
+    }
+  },
+  "109": {
+    "name": "Emetteur 3 boutons (ON/OFF)",
+    "category": "Actionneurs Jeedom",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#031E010001640D0A&&6C7663#ID##GROUP#031E010009640D0A",
+      "off": "6C7663#ID##GROUP#031E010002640D0A&&6C7663#ID##GROUP#031E01001B640D0A"
+    }
+  },
+  "110": {
+    "name": "Emetteur 4 boutons (ON/OFF)",
+    "category": "Actionneurs Jeedom",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#041E010001640D0A&&6C7663#ID##GROUP#041E010009640D0A",
+      "off": "6C7663#ID##GROUP#041E010002640D0A&&6C7663#ID##GROUP#041E01001B640D0A"
+    }
+  },
+  "111": {
+    "name": "Emetteur 5 boutons (ON/OFF)",
+    "category": "Actionneurs Jeedom",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
+    }
+  },
+  "112": {
+    "name": "Micro-module EMV-400 (Volet roulant)",
+    "category": "Micros-Modules Edisio",
+    "platform": "cover",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "open": "6C7663#ID##GROUP#011E010009640D0A",
+      "close": "6C7663#ID##GROUP#011E01001B640D0A",
+      "stop": "6C7663#ID##GROUP#031E01000B640D0A"
+    }
+  },
+  "113": {
+    "name": "Micro-module EMV-400 (Lumière)",
+    "category": "Micros-Modules Edisio",
+    "platform": "light",
+    "dimmable": false,
+    "channels": [
+      1,
+      2
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#021E010001640D0A&&6C7663#ID##GROUP#021E010009640D0A",
+      "off": "6C7663#ID##GROUP#021E010002640D0A&&6C7663#ID##GROUP#021E01001B640D0A"
+    }
+  },
+  "114": {
+    "name": "Module lumière",
+    "category": "Micros-Modules DIO-2",
+    "platform": "light",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#011E010001640D0A&&6C7663#ID##GROUP#011E010009640D0A",
+      "off": "6C7663#ID##GROUP#011E010002640D0A&&6C7663#ID##GROUP#011E01001B640D0A"
+    }
+  },
+  "115": {
+    "name": "Module volet roulant",
+    "category": "Micros-Modules DIO-2",
+    "platform": "cover",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "open": "6C7663#ID##GROUP#011E010009640D0A",
+      "close": "6C7663#ID##GROUP#011E01001B640D0A",
+      "stop": "6C7663#ID##GROUP#031E01000B640D0A"
+    }
+  },
+  "116": {
+    "name": "Micro-module EMSD-300A",
+    "category": "Micros-Modules Edisio",
+    "platform": "light",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#011E010001640D0A",
+      "off": "6C7663#ID##GROUP#011E010002640D0A"
+    }
+  },
+  "119": {
+    "name": "EDR-D4 (ON/OFF/Intensité)",
+    "category": "Modules Rail DIN",
+    "platform": "light",
+    "dimmable": true,
+    "channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
+      "slider": "6C7663#ID##GROUP#051E010004#slider#640D0A"
+    }
+  },
+  "120": {
+    "name": "EDR-B4 (ON/OFF)",
+    "category": "Modules Rail DIN",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
+    }
+  }
+}
