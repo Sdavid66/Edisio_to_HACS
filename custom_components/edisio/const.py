@@ -43,6 +43,7 @@ SIGNAL_DISCOVERY = f"{DOMAIN}_discovery"   # nouveau module detecte
 # Services
 SERVICE_LEARN = "learn"
 SERVICE_SEND_RAW = "send_raw"
+SERVICE_IMPORT = "import_jeedom"
 
 # Delais d'emission (porte du demon Jeedom : 3 envois espaces de 140 ms)
 TX_REPEAT = 3

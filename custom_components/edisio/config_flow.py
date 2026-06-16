@@ -1,6 +1,7 @@
 """Flux de configuration UI pour Edisio (pilote par le catalogue de modeles)."""
 from __future__ import annotations
 
+import json
 import secrets
 
 import voluptuous as vol
@@ -9,11 +10,20 @@ from serial.tools import list_ports
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import callback
 
-from . import models
+from . import jeedom_import, models
 from .const import (
     CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME,
     CONF_PORT, DOMAIN, KNOWN_USB_IDS,
 )
+
+CONF_PATH = "path"
+DEFAULT_IMPORT_PATH = "/config/edisio_import.json"
+
+
+def _read_text(path: str) -> str:
+    """Lecture synchrone d'un fichier texte (appelee dans un executor)."""
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        return fh.read()
 
 
 async def _async_serial_ports(hass) -> dict[str, str]:
@@ -65,10 +75,70 @@ class EdisioOptionsFlow(OptionsFlow):
     def __init__(self, entry: ConfigEntry):
         self.entry = entry
         self._model: str | None = None
+        self._import: dict | None = None
 
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
-            step_id="init", menu_options=["add_device", "remove_device"]
+            step_id="init",
+            menu_options=["add_device", "remove_device", "import_jeedom"],
+        )
+
+    # ------------------------------------------------------------- import Jeedom
+    async def async_step_import_jeedom(self, user_input=None):
+        """Etape 1 : chemin du fichier d'import produit par l'outil en amont."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            path = (user_input.get(CONF_PATH) or "").strip()
+            try:
+                raw = await self.hass.async_add_executor_job(_read_text, path)
+                payload = json.loads(raw)
+                self._import = jeedom_import.load_import(payload)
+            except FileNotFoundError:
+                errors["base"] = "file_not_found"
+            except (json.JSONDecodeError, jeedom_import.ImportError_):
+                errors["base"] = "invalid_format"
+            except OSError:
+                errors["base"] = "read_error"
+            else:
+                if not (self._import["receivers"] or self._import["emitters"]):
+                    errors["base"] = "nothing_found"
+                else:
+                    return await self.async_step_import_confirm()
+        return self.async_show_form(
+            step_id="import_jeedom",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_PATH, default=DEFAULT_IMPORT_PATH): str}
+            ),
+            errors=errors,
+        )
+
+    async def async_step_import_confirm(self, user_input=None):
+        """Etape 2 : recapitulatif puis application de l'import."""
+        data = self._import or {}
+        if user_input is not None:
+            # 1) recepteurs -> fusion dans options.devices
+            devices = list(self.entry.options.get(CONF_DEVICES, []))
+            keys = {(d[CONF_EDISIO_ID], d.get(CONF_CHANNEL, 1)) for d in devices}
+            for d in data.get("receivers", []):
+                key = (d[CONF_EDISIO_ID], d[CONF_CHANNEL])
+                if key not in keys:
+                    devices.append(d)
+                    keys.add(key)
+            # 2) emetteurs -> store de la passerelle (entites creees au reload)
+            gateway = self.hass.data[DOMAIN].get(self.entry.entry_id)
+            if gateway is not None and data.get("emitters"):
+                await gateway.async_import_emitters(data["emitters"])
+            # La mise a jour des options declenche le rechargement de l'entree.
+            return self.async_create_entry(title="", data={CONF_DEVICES: devices})
+
+        return self.async_show_form(
+            step_id="import_confirm",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "receivers": str(len(data.get("receivers", []))),
+                "emitters": str(len(data.get("emitters", []))),
+                "warnings": str(len(data.get("warnings", []))),
+            },
         )
 
     async def async_step_add_device(self, user_input=None):

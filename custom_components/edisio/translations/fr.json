@@ -19,8 +19,20 @@
         "title": "Modules Edisio",
         "menu_options": {
           "add_device": "Ajouter un module pilotable",
-          "remove_device": "Supprimer un module"
+          "remove_device": "Supprimer un module",
+          "import_jeedom": "Importer depuis Jeedom"
         }
+      },
+      "import_jeedom": {
+        "title": "Importer depuis Jeedom",
+        "description": "Indiquez le chemin du fichier `edisio_import.json` produit en amont par l'outil `edisio_migrate.py` (à partir de votre sauvegarde Jeedom), déposé dans un dossier accessible par Home Assistant, par ex. `/config`.",
+        "data": {
+          "path": "Chemin du fichier d'import (.json)"
+        }
+      },
+      "import_confirm": {
+        "title": "Confirmer l'import",
+        "description": "Trouvé : {receivers} récepteur(s) pilotable(s), {emitters} émetteur(s), {warnings} avertissement(s).\n\nValider pour ajouter ces équipements. Les doublons existants sont ignorés."
       },
       "add_device": {
         "title": "Choisir le modèle Edisio",
@@ -42,6 +54,12 @@
           "edisio_id": "ID Edisio (vide = généré)"
         }
       }
+    },
+    "error": {
+      "file_not_found": "Fichier introuvable à ce chemin.",
+      "read_error": "Lecture du fichier impossible (droits ou chemin).",
+      "invalid_format": "Fichier d'import invalide (JSON attendu, produit par l'outil edisio_migrate.py).",
+      "nothing_found": "Aucun équipement Edisio dans ce fichier d'import."
     }
   }
 }
