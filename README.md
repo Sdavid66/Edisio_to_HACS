@@ -103,6 +103,11 @@ Si vous veniez du **plugin Edisio de Jeedom**, vous pouvez réimporter vos
   Jeedom*** : indiquez le chemin du fichier, validez le récapitulatif.
   (Aussi disponible en service `edisio.import_jeedom`.)
 
+<!-- Capture de l'étape d'import : remplacez l'image ci-dessous par un vrai
+     screenshot/GIF de votre HA (déposez-le dans docs/import_jeedom.png).
+     Voir docs/README.md. -->
+![Étape « Importer depuis Jeedom » dans Home Assistant](docs/import_jeedom.png)
+
 L'import reconstruit **un appareil par groupe Edisio réellement utilisé**, en
 reprenant le **nom métier** de vos commandes Jeedom (`ON_Garage`/`OFF_Garage`
 → « Garage »), et pré-enregistre les télécommandes/sondes comme émetteurs
