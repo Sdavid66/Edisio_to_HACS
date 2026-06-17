@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.device_info import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import models, protocol
 from .const import CONF_CHANNEL, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN
