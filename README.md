@@ -97,11 +97,13 @@ Si vous veniez du **plugin Edisio de Jeedom**, vous pouvez réimporter vos
 
 **2. Dans Home Assistant — charger le fichier d'import**
 
-- Déposez `edisio_import.json` dans un dossier accessible par HA (ex. `/config`,
-  via l'add-on *Samba* ou *File editor*).
 - **Paramètres → Appareils et services → Edisio → Configurer → *Importer depuis
-  Jeedom*** : indiquez le chemin du fichier, validez le récapitulatif.
-  (Aussi disponible en service `edisio.import_jeedom`.)
+  Jeedom*** : **téléversez `edisio_import.json` directement depuis votre
+  ordinateur** (idéal si HA tourne sur une machine distante : Proxmox, NAS…),
+  puis validez le récapitulatif.
+- *Alternative* : si le fichier est déjà sur le serveur HA (ex. `/config` via
+  l'add-on *Samba* / *File editor*), indiquez plutôt son chemin. Le service
+  `edisio.import_jeedom` (basé sur un chemin serveur) reste aussi disponible.
 
 <!-- Capture de l'étape d'import : remplacez l'image ci-dessous par un vrai
      screenshot/GIF de votre HA (déposez-le dans docs/import_jeedom.png).

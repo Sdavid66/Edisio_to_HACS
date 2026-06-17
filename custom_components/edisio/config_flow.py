@@ -7,8 +7,10 @@ import secrets
 import voluptuous as vol
 from serial.tools import list_ports
 
+from homeassistant.components.file_upload import process_uploaded_file
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.selector import FileSelector, FileSelectorConfig
 
 from . import jeedom_import, models
 from .const import (
@@ -16,14 +18,20 @@ from .const import (
     CONF_PORT, DOMAIN, KNOWN_USB_IDS,
 )
 
+CONF_FILE = "file"
 CONF_PATH = "path"
-DEFAULT_IMPORT_PATH = "/config/edisio_import.json"
 
 
 def _read_text(path: str) -> str:
     """Lecture synchrone d'un fichier texte (appelee dans un executor)."""
     with open(path, encoding="utf-8", errors="replace") as fh:
         return fh.read()
+
+
+def _read_uploaded(hass: HomeAssistant, file_id: str) -> str:
+    """Lecture synchrone d'un fichier televerse via l'UI (executor)."""
+    with process_uploaded_file(hass, file_id) as path:
+        return path.read_text(encoding="utf-8", errors="replace")
 
 
 async def _async_serial_ports(hass) -> dict[str, str]:
@@ -85,30 +93,42 @@ class EdisioOptionsFlow(OptionsFlow):
 
     # ------------------------------------------------------------- import Jeedom
     async def async_step_import_jeedom(self, user_input=None):
-        """Etape 1 : chemin du fichier d'import produit par l'outil en amont."""
+        """Etape 1 : televerser le fichier d'import (ou indiquer un chemin)."""
         errors: dict[str, str] = {}
         if user_input is not None:
+            file_id = user_input.get(CONF_FILE)
             path = (user_input.get(CONF_PATH) or "").strip()
+            raw: str | None = None
             try:
-                raw = await self.hass.async_add_executor_job(_read_text, path)
-                payload = json.loads(raw)
-                self._import = jeedom_import.load_import(payload)
+                if file_id:  # fichier televerse depuis le navigateur (priorite)
+                    raw = await self.hass.async_add_executor_job(
+                        _read_uploaded, self.hass, file_id)
+                elif path:   # chemin sur le serveur HA (alternative)
+                    raw = await self.hass.async_add_executor_job(_read_text, path)
+                else:
+                    errors["base"] = "no_input"
             except FileNotFoundError:
                 errors["base"] = "file_not_found"
-            except (json.JSONDecodeError, jeedom_import.ImportError_):
-                errors["base"] = "invalid_format"
-            except OSError:
+            except (OSError, ValueError):
                 errors["base"] = "read_error"
-            else:
-                if not (self._import["receivers"] or self._import["emitters"]):
-                    errors["base"] = "nothing_found"
+            if raw is not None and not errors:
+                try:
+                    self._import = jeedom_import.load_import(json.loads(raw))
+                except (json.JSONDecodeError, jeedom_import.ImportError_):
+                    errors["base"] = "invalid_format"
                 else:
-                    return await self.async_step_import_confirm()
+                    if not (self._import["receivers"] or self._import["emitters"]):
+                        errors["base"] = "nothing_found"
+                    else:
+                        return await self.async_step_import_confirm()
         return self.async_show_form(
             step_id="import_jeedom",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_PATH, default=DEFAULT_IMPORT_PATH): str}
-            ),
+            data_schema=vol.Schema({
+                vol.Optional(CONF_FILE): FileSelector(
+                    FileSelectorConfig(accept=".json,application/json")
+                ),
+                vol.Optional(CONF_PATH): str,
+            }),
             errors=errors,
         )
 
