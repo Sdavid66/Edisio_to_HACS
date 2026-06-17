@@ -25,9 +25,10 @@
       },
       "import_jeedom": {
         "title": "Import from Jeedom",
-        "description": "Path to the `edisio_import.json` file produced beforehand by the `edisio_migrate.py` tool (from your Jeedom backup), placed in a folder reachable by Home Assistant, e.g. `/config`.",
+        "description": "Upload the `edisio_import.json` file produced beforehand by the `edisio_migrate.py` tool (pick it directly from your computer). Or, if the file is already on the Home Assistant server, give its path instead.",
         "data": {
-          "path": "Import file path (.json)"
+          "file": "Import file (.json)",
+          "path": "…or path on the HA server"
         }
       },
       "import_confirm": {
@@ -59,7 +60,8 @@
       "file_not_found": "File not found at this path.",
       "read_error": "Cannot read the file (permissions or path).",
       "invalid_format": "Invalid import file (JSON expected, produced by the edisio_migrate.py tool).",
-      "nothing_found": "No Edisio devices in this import file."
+      "nothing_found": "No Edisio devices in this import file.",
+      "no_input": "Upload a file or provide a path."
     }
   }
 }
