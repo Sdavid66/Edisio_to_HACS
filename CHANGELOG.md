@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+- **Import par téléversement de fichier** : l'étape *Importer depuis Jeedom*
+  permet désormais de **choisir le fichier `edisio_import.json` directement
+  depuis l'ordinateur** (sélecteur de fichier du navigateur), pratique quand HA
+  tourne sur une machine distante (Proxmox, NAS…). Le chemin sur le serveur reste
+  disponible en alternative. Ajoute la dépendance `file_upload`.
+
 ## 1.1.0
 - **Import depuis Jeedom en deux temps, sans réappairage** :
   - Outil hors ligne `tools/jeedom_migration/edisio_migrate.py` qui convertit la

@@ -63,12 +63,14 @@ Format du fichier :
 
 ## Étape 3 — Charger dans Home Assistant (interface)
 
-1. Déposez `edisio_import.json` dans un dossier accessible par HA, par ex.
-   `/config` (add-on *Samba* ou *File editor*).
-2. **Paramètres → Appareils et services → Edisio → Configurer →
-   *Importer depuis Jeedom***, indiquez le chemin (défaut
-   `/config/edisio_import.json`), puis validez le récapitulatif.
-   Alternative : service `edisio.import_jeedom` avec le champ `path`.
+1. **Paramètres → Appareils et services → Edisio → Configurer →
+   *Importer depuis Jeedom***.
+2. **Téléversez `edisio_import.json` depuis votre ordinateur** (sélecteur de
+   fichier du navigateur — pratique si HA est distant : Proxmox, NAS…), puis
+   validez le récapitulatif.
+   - *Alternative* : si le fichier est déjà sur le serveur HA (ex. `/config`),
+     renseignez le champ chemin à la place. Le service `edisio.import_jeedom`
+     (champ `path`) reste aussi disponible.
 
 L'intégration se recharge : les lumières/volets apparaissent comme entités
 pilotables, les télécommandes/sondes comme appareils découverts. **L'import est
