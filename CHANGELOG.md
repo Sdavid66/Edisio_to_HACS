@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+- **Modèle volet `120C` : vrai stop.** La commande stop utilise désormais la
+  commande Edisio `0B` (`6C7663#ID##GROUP#031E01000B640D0A`) — arrêt mi-course
+  confirmé sur EDR-B4 — au lieu de l'« inverser ». open = Haut, close = Bas,
+  stop = arrêt.
+
 ## 1.2.2
 - **Logo de l'intégration** : icône Edisio embarquée dans `custom_components/edisio/brand/`
   (`icon.png` 256, `icon@2x.png` 512, `logo.png`), fond transparent. Depuis Home

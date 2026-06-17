@@ -48,7 +48,7 @@ python3 edisio_migrate.py chemin/vers/DB_backup.sql --stores-as-cover
 ```
 
 (Les volets utilisent alors le modèle `120C` « EDR-B4 (Volet/Store) », trames
-identiques à Jeedom : open = Haut, close = Bas, stop = Inverser.)
+open = Haut, close = Bas, stop = commande stop Edisio `0B`, arrêt mi‑course.)
 
 Format du fichier :
 
