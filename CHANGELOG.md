@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.1
+- **Correctif** : import incorrect `homeassistant.helpers.device_info` (module
+  inexistant) qui empêchait la configuration de l'entrée
+  (`ModuleNotFoundError: Platform edisio.switch not found` puis
+  `No module named 'homeassistant.helpers.device_info'`). `DeviceInfo` est
+  désormais importé depuis `homeassistant.helpers.device_registry`
+  (dans `entity.py` et `switch.py`).
+
 ## 1.2.0
 - **Import par téléversement de fichier** : l'étape *Importer depuis Jeedom*
   permet désormais de **choisir le fichier `edisio_import.json` directement
