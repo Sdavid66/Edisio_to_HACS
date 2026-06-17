@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+- **Logo de l'intégration** : icône Edisio embarquée dans `custom_components/edisio/brand/`
+  (`icon.png` 256, `icon@2x.png` 512, `logo.png`), fond transparent. Depuis Home
+  Assistant 2026.3, ces images locales sont prioritaires et affichées directement
+  dans l'UI — plus besoin du dépôt `home-assistant/brands`.
+
 ## 1.2.1
 - **Correctif** : import incorrect `homeassistant.helpers.device_info` (module
   inexistant) qui empêchait la configuration de l'entrée
