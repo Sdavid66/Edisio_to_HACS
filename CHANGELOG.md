@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.4
+- **Correctif** : suppression d'un appel bloquant (`models.json` lu en synchrone)
+  dans la boucle d'événements lors du démarrage des plateformes
+  (`Detected blocking call to read_text … inside the event loop`). Le catalogue
+  de modèles est désormais préchargé via un executor (`models.async_load_catalog`)
+  au début de `async_setup_entry`, avant la création des entités.
+
 ## 1.2.3
 - **Modèle volet `120C` : vrai stop.** La commande stop utilise désormais la
   commande Edisio `0B` (`6C7663#ID##GROUP#031E01000B640D0A`) — arrêt mi-course

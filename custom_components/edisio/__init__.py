@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 
-from . import jeedom_import, protocol
+from . import jeedom_import, models, protocol
 from .const import (
     CONF_DEVICES, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT, PLATFORMS,
     SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION, SERVICE_LEARN,
@@ -29,6 +29,9 @@ def _read_text(path: str) -> str:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    # Precharge le catalogue de modeles (lecture fichier hors boucle d'evenements).
+    await models.async_load_catalog(hass)
+
     gateway = EdisioGateway(hass, entry)
     await gateway.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = gateway
