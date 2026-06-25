@@ -10,8 +10,18 @@ _CATALOG_PATH = Path(__file__).parent / "models.json"
 
 @lru_cache(maxsize=1)
 def catalog() -> dict[str, dict]:
-    """Retourne le catalogue {model_id: definition}."""
+    """Retourne le catalogue {model_id: definition}.
+
+    Lecture synchrone : ne doit PAS etre appelee directement dans la boucle
+    d'evenements avant un prechargement. Utiliser ``async_load_catalog`` au
+    demarrage pour remplir le cache via un executor.
+    """
     return json.loads(_CATALOG_PATH.read_text(encoding="utf-8"))
+
+
+async def async_load_catalog(hass) -> dict[str, dict]:
+    """Precharge le catalogue dans un executor (evite l'I/O bloquante)."""
+    return await hass.async_add_executor_job(catalog)
 
 
 def model(model_id: str) -> dict | None:
