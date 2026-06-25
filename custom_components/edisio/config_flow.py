@@ -71,6 +71,30 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({vol.Required(CONF_PORT): selector}),
         )
 
+    async def async_step_reconfigure(self, user_input=None):
+        """Changer le port serie du dongle sans perdre les modules configures."""
+        entry = self._get_reconfigure_entry()
+        ports = await _async_serial_ports(self.hass)
+        if user_input is not None:
+            port = user_input[CONF_PORT].strip()
+            return self.async_update_reload_and_abort(
+                entry,
+                title=f"Edisio ({port})",
+                data={**entry.data, CONF_PORT: port},
+            )
+        current = entry.data.get(CONF_PORT, "")
+        choices = dict(ports)
+        # Garde le port actuel dans la liste meme si le dongle est debranche.
+        if current and current not in choices:
+            choices[current] = f"{current} (actuel)"
+        selector = vol.In({**choices, "": "Saisie manuelle…"}) if choices else str
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_PORT, default=current): selector}
+            ),
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(entry: ConfigEntry) -> OptionsFlow:
