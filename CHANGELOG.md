@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.5
+- **Dépendance série** : remplacement de `pyserial-asyncio` (non maintenu) par
+  `pyserial-asyncio-fast`, conformément à l'avertissement Home Assistant
+  (« should be replaced by pyserial-asyncio-fast … will stop working in
+  Home Assistant 2026.7 »). L'import devient `serial_asyncio_fast` (API
+  identique, aliasée), aucun changement de comportement.
+
 ## 1.2.4
 - **Correctif** : suppression d'un appel bloquant (`models.json` lu en synchrone)
   dans la boucle d'événements lors du démarrage des plateformes

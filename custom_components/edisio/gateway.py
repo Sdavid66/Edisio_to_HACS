@@ -5,7 +5,7 @@ import asyncio
 import logging
 from typing import Callable
 
-import serial_asyncio
+import serial_asyncio_fast as serial_asyncio
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
