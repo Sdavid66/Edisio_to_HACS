@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0
+- **Changement du port USB sans tout refaire** : nouvelle action **Reconfigurer**
+  (menu ⋮ de l'intégration → *Reconfigurer*) qui permet de sélectionner un autre
+  port série du dongle. Les modules déjà configurés sont conservés ; l'intégration
+  est rechargée automatiquement. Plus besoin de supprimer puis recréer l'entrée
+  quand le dongle change de port (`/dev/ttyUSB0` → `ttyUSB1`, déplacement de prise…).
+
 ## 1.2.5
 - **Dépendance série** : remplacement de `pyserial-asyncio` (non maintenu) par
   `pyserial-asyncio-fast`, conformément à l'avertissement Home Assistant

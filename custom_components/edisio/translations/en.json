@@ -7,10 +7,18 @@
         "data": {
           "port": "Port serie"
         }
+      },
+      "reconfigure": {
+        "title": "Change the Edisio dongle port",
+        "description": "Select the new serial port of the Edisio USB dongle. Your configured modules are kept.",
+        "data": {
+          "port": "Serial port"
+        }
       }
     },
     "abort": {
-      "already_configured": "Ce port est deja configure."
+      "already_configured": "Ce port est deja configure.",
+      "reconfigure_successful": "Edisio dongle port updated."
     }
   },
   "options": {
