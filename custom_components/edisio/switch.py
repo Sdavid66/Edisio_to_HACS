@@ -4,11 +4,11 @@ from __future__ import annotations
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN, SIGNAL_INCLUSION
+from .device import gateway_device_info
 from .entity import EdisioReceiver
 from .gateway import EdisioGateway
 
@@ -48,11 +48,7 @@ class EdisioInclusionSwitch(SwitchEntity):
         self._gateway = gateway
         self._attr_name = "Edisio mode inclusion"
         self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_inclusion"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"gateway_{entry.entry_id}")},
-            manufacturer="Edisio",
-            name=f"Passerelle Edisio ({gateway.port})",
-        )
+        self._attr_device_info = gateway_device_info(entry.entry_id, gateway.port)
 
     @property
     def is_on(self) -> bool:

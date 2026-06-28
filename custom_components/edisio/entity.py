@@ -6,6 +6,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import models, protocol
 from .const import CONF_CHANNEL, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN
+from .device import gateway_id
 from .gateway import EdisioGateway
 
 
@@ -30,6 +31,7 @@ class EdisioReceiver(Entity):
             manufacturer="Edisio",
             model=self._model["name"],
             name=dev[CONF_NAME].rsplit(" C", 1)[0],
+            via_device=gateway_id(gateway.entry.entry_id),
         )
 
     async def _send(self, action: str, slider: int | None = None) -> None:

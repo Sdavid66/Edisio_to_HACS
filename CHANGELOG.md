@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.0
+- **Vue « réseau » type ZHA/Z-Wave** : la passerelle est désormais un véritable
+  appareil **hub** (fabricant, modèle = dongle détecté, version), et tous les
+  modules — récepteurs **et** émetteurs découverts — y sont rattachés via
+  `via_device` (topologie du réseau visible dans la page de l'intégration, avec
+  le nombre d'appareils et d'entités).
+- **Entités de diagnostic sur la passerelle** :
+  - `binary_sensor` *Connectée* (état du dongle, classe connectivity) ;
+  - capteurs *Port*, *Émetteurs appairés*, *Trames reçues*, *Dernière trame*.
+- **Télécharger les diagnostics** : export du réseau (passerelle, émetteurs
+  appairés/bannis, récepteurs) depuis la page de l'intégration.
+- Les émetteurs découverts sont maintenant **regroupés dans un appareil** dédié
+  (au lieu d'entités isolées).
+
 ## 1.3.0
 - **Changement du port USB sans tout refaire** : nouvelle action **Reconfigurer**
   (menu ⋮ de l'intégration → *Reconfigurer*) qui permet de sélectionner un autre

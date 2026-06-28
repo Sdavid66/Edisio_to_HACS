@@ -36,9 +36,12 @@ SERIAL_BAUDRATE = 9600
 # VID:PID des dongles USB Edisio connus (Prolific PL2303 / FTDI FT232)
 KNOWN_USB_IDS = [("067B", "2303"), ("0403", "6001")]
 
+MANUFACTURER = "Edisio"
+
 # Signaux dispatcher
 SIGNAL_RX = f"{DOMAIN}_rx"                 # trame entrante decodee
 SIGNAL_DISCOVERY = f"{DOMAIN}_discovery"   # nouveau module detecte
+SIGNAL_STATUS = f"{DOMAIN}_status"         # changement d'etat de la passerelle
 
 # Services
 SERVICE_LEARN = "learn"
