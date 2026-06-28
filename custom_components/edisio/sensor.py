@@ -5,17 +5,28 @@ from homeassistant.components.sensor import (
     SensorDeviceClass, SensorEntity, SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PERCENTAGE, UnitOfTemperature
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_RX
+from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_RX, SIGNAL_STATUS
+from .device import emitter_device_info, gateway_device_info
+from .gateway import EdisioGateway
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
                             async_add_entities: AddEntitiesCallback) -> None:
+    gw: EdisioGateway = hass.data[DOMAIN][entry.entry_id]
     seen: set[str] = set()
+
+    # Capteurs de diagnostic de la passerelle (hub)
+    async_add_entities([
+        EdisioGatewayPortSensor(gw, entry.entry_id),
+        EdisioGatewayPairedSensor(gw, entry.entry_id),
+        EdisioGatewayFramesSensor(gw, entry.entry_id),
+        EdisioGatewayLastFrameSensor(gw, entry.entry_id),
+    ])
 
     @callback
     def _discovered(data: dict) -> None:
@@ -26,10 +37,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         has_temp = "temperature" in kinds or "temperature" in data
         if has_batt and f"{dev_id}_battery" not in seen:
             seen.add(f"{dev_id}_battery")
-            new.append(EdisioBatterySensor(dev_id))
+            new.append(EdisioBatterySensor(entry.entry_id, dev_id))
         if has_temp and f"{dev_id}_temp" not in seen:
             seen.add(f"{dev_id}_temp")
-            new.append(EdisioTemperatureSensor(dev_id))
+            new.append(EdisioTemperatureSensor(entry.entry_id, dev_id))
         if new:
             async_add_entities(new)
 
@@ -41,8 +52,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
 class _Base(SensorEntity):
     _attr_should_poll = False
 
-    def __init__(self, dev_id: str):
+    def __init__(self, entry_id: str, dev_id: str):
         self._dev_id = dev_id
+        self._attr_device_info = emitter_device_info(entry_id, dev_id)
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(
@@ -62,8 +74,8 @@ class EdisioBatterySensor(_Base):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_entity_registry_enabled_default = True
 
-    def __init__(self, dev_id: str):
-        super().__init__(dev_id)
+    def __init__(self, entry_id: str, dev_id: str):
+        super().__init__(entry_id, dev_id)
         self._attr_name = f"Edisio {dev_id} batterie"
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_battery"
 
@@ -79,8 +91,8 @@ class EdisioTemperatureSensor(_Base):
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, dev_id: str):
-        super().__init__(dev_id)
+    def __init__(self, entry_id: str, dev_id: str):
+        super().__init__(entry_id, dev_id)
         self._attr_name = f"Edisio {dev_id} temperature"
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_temperature"
 
@@ -89,3 +101,78 @@ class EdisioTemperatureSensor(_Base):
         if "temperature" in data:
             self._attr_native_value = data["temperature"]
             self.async_write_ha_state()
+
+
+class _GatewaySensor(SensorEntity):
+    """Base des capteurs de diagnostic de la passerelle (hub)."""
+
+    _attr_should_poll = False
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, gateway: EdisioGateway, entry_id: str):
+        self._gw = gateway
+        self._attr_device_info = gateway_device_info(entry_id, gateway.port)
+
+    async def async_added_to_hass(self) -> None:
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, SIGNAL_STATUS, self._refresh)
+        )
+
+    @callback
+    def _refresh(self) -> None:
+        self.async_write_ha_state()
+
+
+class EdisioGatewayPortSensor(_GatewaySensor):
+    _attr_translation_key = "gateway_port"
+    _attr_icon = "mdi:usb-port"
+
+    def __init__(self, gateway, entry_id):
+        super().__init__(gateway, entry_id)
+        self._attr_name = "Edisio passerelle port"
+        self._attr_unique_id = f"{DOMAIN}_{entry_id}_port"
+
+    @property
+    def native_value(self) -> str:
+        return self._gw.port
+
+
+class EdisioGatewayPairedSensor(_GatewaySensor):
+    _attr_icon = "mdi:remote"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, gateway, entry_id):
+        super().__init__(gateway, entry_id)
+        self._attr_name = "Edisio passerelle emetteurs appaires"
+        self._attr_unique_id = f"{DOMAIN}_{entry_id}_paired"
+
+    @property
+    def native_value(self) -> int:
+        return self._gw.paired_count
+
+
+class EdisioGatewayFramesSensor(_GatewaySensor):
+    _attr_icon = "mdi:radio-tower"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    def __init__(self, gateway, entry_id):
+        super().__init__(gateway, entry_id)
+        self._attr_name = "Edisio passerelle trames recues"
+        self._attr_unique_id = f"{DOMAIN}_{entry_id}_frames"
+
+    @property
+    def native_value(self) -> int:
+        return self._gw.frames_received
+
+
+class EdisioGatewayLastFrameSensor(_GatewaySensor):
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, gateway, entry_id):
+        super().__init__(gateway, entry_id)
+        self._attr_name = "Edisio passerelle derniere trame"
+        self._attr_unique_id = f"{DOMAIN}_{entry_id}_last_frame"
+
+    @property
+    def native_value(self):
+        return self._gw.last_frame_at

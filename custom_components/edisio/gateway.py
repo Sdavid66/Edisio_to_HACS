@@ -12,12 +12,13 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from . import protocol
 from .const import (
     CONF_BANNED, CONF_DISCOVERED, EVENT_TYPES, INCLUSION_TIMEOUT,
-    SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION, SIGNAL_RX,
-    TX_DELAY, TX_REPEAT,
+    KNOWN_USB_IDS, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
+    SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,11 +96,28 @@ class EdisioGateway:
         self._write_lock = asyncio.Lock()
         self._closing = False
         self._reconnect_task = None
+        # etat expose aux entites de diagnostic du hub
+        self.connected = False
+        self.frames_received = 0
+        self.last_frame_at = None
+        self.dongle_description: str | None = None
+        self.dongle_vidpid: str | None = None
+
+    @property
+    def paired_count(self) -> int:
+        """Nombre d'emetteurs appaires (acceptes)."""
+        return len(self.accepted)
+
+    @callback
+    def _notify_status(self) -> None:
+        """Previent les entites de diagnostic d'un changement d'etat."""
+        async_dispatcher_send(self.hass, SIGNAL_STATUS)
 
     # ------------------------------------------------------------------ vie
     async def async_start(self) -> None:
         self._closing = False
         await self._async_load()
+        await self._resolve_dongle()
         await self._connect()
         # re-cree les entites des emetteurs deja connus (apres redemarrage)
         for dev_id, kinds in self.accepted.items():
@@ -107,6 +125,22 @@ class EdisioGateway:
                 self.hass, SIGNAL_DISCOVERY,
                 {"id": dev_id, "kinds": set(kinds)},
             )
+
+    async def _resolve_dongle(self) -> None:
+        """Identifie le dongle (description USB, VID:PID) pour l'appareil hub."""
+        from serial.tools import list_ports
+        try:
+            ports = await self.hass.async_add_executor_job(list_ports.comports)
+        except Exception:  # noqa: BLE001
+            return
+        for p in ports:
+            if p.device != self.port:
+                continue
+            if p.description and p.description != "n/a":
+                self.dongle_description = p.description
+            if p.vid and p.pid:
+                self.dongle_vidpid = f"{p.vid:04X}:{p.pid:04X}"
+            return
 
     async def _connect(self) -> None:
         try:
@@ -116,13 +150,19 @@ class EdisioGateway:
                 self.port, baudrate=SERIAL_BAUDRATE,
             )
             _LOGGER.info("Passerelle Edisio demarree sur %s", self.port)
+            self.connected = True
+            self._notify_status()
         except Exception as err:  # noqa: BLE001
             _LOGGER.error("Ouverture du port %s impossible : %s", self.port, err)
+            self.connected = False
+            self._notify_status()
             self._schedule_reconnect()
 
     @callback
     def _handle_lost(self):
         self._transport = None
+        self.connected = False
+        self._notify_status()
         if not self._closing:
             self._schedule_reconnect()
 
@@ -146,6 +186,8 @@ class EdisioGateway:
         if self._transport:
             self._transport.close()
             self._transport = None
+        self.connected = False
+        self._notify_status()
         _LOGGER.info("Passerelle Edisio arretee")
 
     # -------------------------------------------------------------- reception
@@ -154,6 +196,9 @@ class EdisioGateway:
         decoded = protocol.decode(frame)
         if decoded is None:
             return
+        self.frames_received += 1
+        self.last_frame_at = dt_util.utcnow()
+        self._notify_status()
         dev_id = decoded["id"]
         if dev_id in self.banned:
             _LOGGER.debug("Trame ignoree (banni) : %s", dev_id)
@@ -224,9 +269,10 @@ class EdisioGateway:
             if ent.platform == "edisio" and ent.unique_id.startswith(prefix):
                 ent_reg.async_remove(ent.entity_id)
         dev_reg = dr.async_get(self.hass)
-        device = dev_reg.async_get_device(identifiers={("edisio", dev_id)})
-        if device:
-            dev_reg.async_remove_device(device.id)
+        for ident in (("edisio", f"emitter_{dev_id}"), ("edisio", dev_id)):
+            device = dev_reg.async_get_device(identifiers={ident})
+            if device:
+                dev_reg.async_remove_device(device.id)
 
     # ---------------------------------------------------------------- import
     async def async_import_emitters(self, emitters: list[dict]) -> int:

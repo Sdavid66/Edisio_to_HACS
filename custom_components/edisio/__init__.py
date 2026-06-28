@@ -10,8 +10,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
+from homeassistant.loader import async_get_integration
 
 from . import jeedom_import, models, protocol
+from .device import gateway_id
 from .const import (
     CONF_DEVICES, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT, PLATFORMS,
     SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION, SERVICE_LEARN,
@@ -36,10 +38,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await gateway.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = gateway
 
+    await _async_register_hub(hass, entry, gateway)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     _register_services(hass)
     return True
+
+
+async def _async_register_hub(
+    hass: HomeAssistant, entry: ConfigEntry, gateway: EdisioGateway
+) -> None:
+    """Enregistre la passerelle comme appareil 'hub' (comme un coordinateur)."""
+    integration = await async_get_integration(hass, DOMAIN)
+    model = gateway.dongle_description or "Dongle USB Edisio 868 MHz"
+    if gateway.dongle_vidpid:
+        model = f"{model} ({gateway.dongle_vidpid})"
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={gateway_id(entry.entry_id)},
+        manufacturer="Edisio",
+        name=f"Passerelle Edisio ({gateway.port})",
+        model=model,
+        sw_version=str(integration.version) if integration.version else None,
+        entry_type=dr.DeviceEntryType.SERVICE,
+    )
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
