@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.1
+- **Correctif détection dans « Ajouter un appareil »** : l'appui sur une
+  télécommande **déjà connue** (ajoutée lors de tests précédents, persistée dans
+  le store) n'était pas capté — la capture ne se déclenchait que pour un émetteur
+  *inconnu*. Désormais l'assistant capture **le premier appui reçu, connu ou non**
+  (rappuyer permet aussi de renommer un émetteur existant).
+- La fenêtre de capture est **réarmée** à chaque affichage du formulaire : si
+  aucun appui n'est détecté, réessayer garde l'inclusion active (plus de blocage
+  après expiration de la fenêtre).
+
 ## 1.8.0
 - **« Ajouter un appareil » fait maintenant l'appairage par inclusion** (comme
   Z-Wave). Le bouton ouvre un menu :
