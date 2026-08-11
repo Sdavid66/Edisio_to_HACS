@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0
+- **Découverte des émetteurs par cartes (comme ZHA/Z-Wave)** : en mode inclusion,
+  appuyer sur un bouton/télécommande Edisio inconnu fait apparaître une **carte
+  « Émetteur Edisio détecté »** sur **Paramètres → Appareils et services**. Un clic
+  sur **Configurer** lie le module et crée ses entités (bouton `event`, état, batterie,
+  température) rattachées à la passerelle. Fini l'ajout silencieux : on voit et on
+  valide chaque appareil.
+- Les cartes n'apparaissent que **pendant le mode inclusion** (garde-fou anti-voisin),
+  et sont dédupliquées (une seule carte par identifiant, même en cas d'appuis répétés).
+- Nouvelle méthode `EdisioGateway.async_accept_emitter` + étapes de flux
+  `integration_discovery` / `discovery_confirm`.
+- `hacs.json` : version minimale de Home Assistant portée à **2026.3.0** (requise
+  par les icônes de marque locales `brand/`, déjà utilisées depuis la v1.2.2).
+
 ## 1.4.0
 - **Vue « réseau » type ZHA/Z-Wave** : la passerelle est désormais un véritable
   appareil **hub** (fabricant, modèle = dongle détecté, version), et tous les

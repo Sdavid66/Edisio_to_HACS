@@ -14,11 +14,18 @@
         "data": {
           "port": "Port serie"
         }
+      },
+      "discovery_confirm": {
+        "title": "Emetteur Edisio detecte",
+        "description": "Un nouvel emetteur Edisio (telecommande, bouton, sonde) a ete detecte :\n\n**ID {id}** - capacites : {kinds}\n\nValidez pour l'ajouter. Ses entites (bouton, etat, batterie/temperature) seront creees et rattachees a la passerelle."
       }
     },
+    "flow_title": "{name}",
     "abort": {
       "already_configured": "Ce port est deja configure.",
-      "reconfigure_successful": "Port du dongle Edisio mis a jour."
+      "reconfigure_successful": "Port du dongle Edisio mis a jour.",
+      "device_added": "Emetteur Edisio {id} ajoute.",
+      "no_hub": "Aucune passerelle Edisio configuree."
     }
   },
   "options": {
