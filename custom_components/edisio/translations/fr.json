@@ -77,6 +77,24 @@
       },
       "step": {
         "user": {
+          "title": "Ajouter un appareil Edisio",
+          "menu_options": {
+            "pair": "Détecter une télécommande / un bouton",
+            "receiver": "Ajouter un récepteur (lumière, volet…)"
+          }
+        },
+        "pair": {
+          "title": "Détecter un émetteur",
+          "description": "Le mode inclusion est activé sur la passerelle Edisio.\n\nAppuyez maintenant sur un bouton de votre télécommande / interrupteur Edisio, puis cliquez sur **Valider**."
+        },
+        "pair_name": {
+          "title": "Nommer l'émetteur",
+          "description": "Émetteur détecté : **{id}** (capacités : {kinds}).\n\nDonnez-lui un nom.",
+          "data": {
+            "name": "Nom de l'appareil"
+          }
+        },
+        "receiver": {
           "title": "Choisir le modèle Edisio",
           "data": {
             "model": "Modèle"
@@ -97,6 +115,13 @@
             "edisio_id": "ID Edisio"
           }
         }
+      },
+      "error": {
+        "no_press": "Aucun appui détecté. Appuyez sur un bouton de la télécommande, puis validez."
+      },
+      "abort": {
+        "emitter_added": "Émetteur Edisio {id} ajouté.",
+        "no_hub": "Passerelle Edisio introuvable."
       }
     }
   }

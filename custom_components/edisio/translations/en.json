@@ -77,6 +77,24 @@
       },
       "step": {
         "user": {
+          "title": "Add an Edisio device",
+          "menu_options": {
+            "pair": "Detect a remote / button",
+            "receiver": "Add a receiver (light, cover…)"
+          }
+        },
+        "pair": {
+          "title": "Detect an emitter",
+          "description": "Inclusion mode is now active on the Edisio gateway.\n\nPress a button on your Edisio remote / switch now, then click **Submit**."
+        },
+        "pair_name": {
+          "title": "Name the emitter",
+          "description": "Emitter detected: **{id}** (capabilities: {kinds}).\n\nGive it a name.",
+          "data": {
+            "name": "Device name"
+          }
+        },
+        "receiver": {
           "title": "Choose the Edisio model",
           "data": {
             "model": "Model"
@@ -97,6 +115,13 @@
             "edisio_id": "Edisio ID"
           }
         }
+      },
+      "error": {
+        "no_press": "No button press detected. Press a button on the remote, then submit."
+      },
+      "abort": {
+        "emitter_added": "Edisio emitter {id} added.",
+        "no_hub": "Edisio gateway not found."
       }
     }
   }

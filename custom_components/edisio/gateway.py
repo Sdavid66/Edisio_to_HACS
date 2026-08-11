@@ -91,6 +91,8 @@ class EdisioGateway:
         self.names: dict[str, str] = {}           # {id: nom choisi a la decouverte}
         self.banned: set[str] = set()
         self.inclusion = False
+        self._capturing = False                     # assistant « Ajouter un appareil »
+        self._pending_emitter: dict | None = None
         self._inclusion_cancel: Callable | None = None
         self._transport = None
         self._protocol = None
@@ -209,6 +211,12 @@ class EdisioGateway:
         known = dev_id in self.accepted
 
         if not known:
+            if self._capturing:
+                # Assistant « Ajouter un appareil » en cours : on bufferise le
+                # premier emetteur detecte (pas de carte pendant la capture).
+                self._pending_emitter = {"id": dev_id, "kinds": sorted(kinds)}
+                _LOGGER.info("Capture : emetteur %s detecte %s", dev_id, kinds)
+                return
             if not self.inclusion:
                 _LOGGER.debug("Emetteur %s ignore (hors mode inclusion)", dev_id)
                 return
@@ -267,6 +275,32 @@ class EdisioGateway:
         )
         _LOGGER.info("Emetteur %s ajoute via la decouverte (nom=%s)", dev_id, name)
 
+    # --------------------------------------------------- capture (assistant)
+    @callback
+    def async_begin_capture(self, duration: int = INCLUSION_TIMEOUT) -> None:
+        """Active l'inclusion et capture le prochain emetteur detecte.
+
+        Utilise par l'assistant « Ajouter un appareil » : pendant la capture,
+        un emetteur inconnu est bufferise (au lieu d'ouvrir une carte).
+        """
+        self._pending_emitter = None
+        self._capturing = True
+        self.async_set_inclusion(True, duration)
+
+    @callback
+    def async_end_capture(self) -> None:
+        """Termine la capture et coupe l'inclusion."""
+        self._capturing = False
+        self._pending_emitter = None
+        self.async_set_inclusion(False)
+
+    @callback
+    def take_pending_emitter(self) -> dict | None:
+        """Renvoie (et consomme) l'emetteur capture, ou None si aucun appui."""
+        pending = self._pending_emitter
+        self._pending_emitter = None
+        return pending
+
     # -------------------------------------------------------------- inclusion
     @callback
     def async_set_inclusion(self, enabled: bool, duration: int = INCLUSION_TIMEOUT):
@@ -274,6 +308,8 @@ class EdisioGateway:
         if self._inclusion_cancel:
             self._inclusion_cancel()
             self._inclusion_cancel = None
+        if not enabled:
+            self._capturing = False
         self.inclusion = enabled
         _LOGGER.info("Mode inclusion : %s", "ON" if enabled else "OFF")
         if enabled and duration:
@@ -286,6 +322,7 @@ class EdisioGateway:
     def _auto_off(self, _now):
         self._inclusion_cancel = None
         self.inclusion = False
+        self._capturing = False
         _LOGGER.info("Mode inclusion : OFF (fin de fenetre)")
         async_dispatcher_send(self.hass, SIGNAL_INCLUSION, False)
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.8.0
+- **« Ajouter un appareil » fait maintenant l'appairage par inclusion** (comme
+  Z-Wave). Le bouton ouvre un menu :
+  - **Détecter une télécommande / un bouton** : active le mode inclusion sur le
+    port de la passerelle, attend un **appui**, détecte l'émetteur, permet de le
+    **nommer**, puis l'ajoute — le tout sans quitter l'assistant.
+  - **Ajouter un récepteur** (lumière, volet…) : ajout par modèle (comme avant).
+- Nouveau mode **capture** dans la passerelle : pendant l'assistant, l'émetteur
+  détecté est capturé directement (pas de carte séparée), et l'inclusion se coupe
+  à la fin (ou après la fenêtre de 120 s si l'assistant est abandonné).
+- Rappel : le libellé du bouton n'apparaît qu'après un **redémarrage de Home
+  Assistant** (les types de sous-entrées sont chargés au démarrage) et un
+  rafraîchissement forcé du navigateur.
+
 ## 1.7.0
 - **Bouton « Ajouter un appareil »** (comme Z-Wave/Zigbee) sur la page de
   l'intégration, à côté de « Ajouter un Hub ». Il ouvre un flux natif de
