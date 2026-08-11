@@ -88,14 +88,17 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="no_hub")
         if user_input is not None:
             gateway = self.hass.data[DOMAIN][entries[0].entry_id]
-            await gateway.async_accept_emitter(self._disc_id, self._disc_kinds)
+            name = (user_input.get(CONF_NAME) or "").strip() or None
+            await gateway.async_accept_emitter(self._disc_id, self._disc_kinds, name)
             return self.async_abort(
                 reason="device_added",
                 description_placeholders={"id": self._disc_id},
             )
         return self.async_show_form(
             step_id="discovery_confirm",
-            data_schema=vol.Schema({}),
+            data_schema=vol.Schema({
+                vol.Optional(CONF_NAME, default=f"Edisio {self._disc_id}"): str,
+            }),
             description_placeholders={
                 "id": self._disc_id,
                 "kinds": ", ".join(self._disc_kinds) or "—",

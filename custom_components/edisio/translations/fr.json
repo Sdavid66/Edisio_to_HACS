@@ -17,7 +17,10 @@
       },
       "discovery_confirm": {
         "title": "Émetteur Edisio détecté",
-        "description": "Un nouvel émetteur Edisio (télécommande, bouton, sonde) a été détecté :\n\n**ID {id}** — capacités : {kinds}\n\nValidez pour l'ajouter. Ses entités (bouton, état, batterie/température) seront créées et rattachées à la passerelle."
+        "description": "Un nouvel émetteur Edisio (télécommande, bouton, sonde) a été détecté :\n\n**ID {id}** — capacités : {kinds}\n\nDonnez-lui un nom, puis validez pour l'ajouter. Ses entités (bouton, état, batterie/température) seront créées et rattachées à la passerelle.",
+        "data": {
+          "name": "Nom de l'appareil"
+        }
       }
     },
     "flow_title": "{name}",

@@ -31,9 +31,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         if dev_id in seen:
             return
         seen.add(dev_id)
-        async_add_entities(
-            [EdisioBinarySensor(entry.entry_id, dev_id, data.get("value") == "on")]
-        )
+        async_add_entities([EdisioBinarySensor(
+            entry.entry_id, dev_id, data.get("value") == "on", data.get("name"),
+        )])
 
     entry.async_on_unload(
         async_dispatcher_connect(hass, SIGNAL_DISCOVERY, _discovered)
@@ -43,12 +43,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
 class EdisioBinarySensor(BinarySensorEntity):
     _attr_should_poll = False
 
-    def __init__(self, entry_id: str, dev_id: str, initial: bool):
+    def __init__(self, entry_id: str, dev_id: str, initial: bool,
+                 name: str | None = None):
         self._dev_id = dev_id
         self._attr_is_on = initial
         self._attr_name = f"Edisio {dev_id} etat"
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_state"
-        self._attr_device_info = emitter_device_info(entry_id, dev_id)
+        self._attr_device_info = emitter_device_info(entry_id, dev_id, name)
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(

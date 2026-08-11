@@ -88,6 +88,7 @@ class EdisioGateway:
         # etat accumule (hors config) persiste dans un Store dedie
         self._store: Store = Store(hass, 1, f"edisio_{entry.entry_id}")
         self.accepted: dict[str, set[str]] = {}   # {id: set(kinds)}
+        self.names: dict[str, str] = {}           # {id: nom choisi a la decouverte}
         self.banned: set[str] = set()
         self.inclusion = False
         self._inclusion_cancel: Callable | None = None
@@ -123,7 +124,7 @@ class EdisioGateway:
         for dev_id, kinds in self.accepted.items():
             async_dispatcher_send(
                 self.hass, SIGNAL_DISCOVERY,
-                {"id": dev_id, "kinds": set(kinds)},
+                {"id": dev_id, "kinds": set(kinds), "name": self.names.get(dev_id)},
             )
 
     async def _resolve_dongle(self) -> None:
@@ -248,16 +249,23 @@ class EdisioGateway:
             )
         )
 
-    async def async_accept_emitter(self, dev_id: str, kinds) -> None:
+    async def async_accept_emitter(
+        self, dev_id: str, kinds, name: str | None = None
+    ) -> None:
         """Ajoute un emetteur decouvert (validation de la carte) et cree ses entites."""
         dev_id = dev_id.upper()
         self.banned.discard(dev_id)
         self.accepted[dev_id] = set(kinds)
+        if name:
+            self.names[dev_id] = name
+        else:
+            self.names.pop(dev_id, None)
         await self._store.async_save(self._data_to_save())
         async_dispatcher_send(
-            self.hass, SIGNAL_DISCOVERY, {"id": dev_id, "kinds": set(kinds)}
+            self.hass, SIGNAL_DISCOVERY,
+            {"id": dev_id, "kinds": set(kinds), "name": self.names.get(dev_id)},
         )
-        _LOGGER.info("Emetteur %s ajoute via la decouverte", dev_id)
+        _LOGGER.info("Emetteur %s ajoute via la decouverte (nom=%s)", dev_id, name)
 
     # -------------------------------------------------------------- inclusion
     @callback
@@ -286,6 +294,7 @@ class EdisioGateway:
         """Exclut un emetteur : retire entites/appareil et oublie l'id."""
         dev_id = dev_id.upper()
         self.accepted.pop(dev_id, None)
+        self.names.pop(dev_id, None)
         if ban:
             self.banned.add(dev_id)
         self._persist()
@@ -345,16 +354,20 @@ class EdisioGateway:
     # ---------------------------------------------------------------- persist
     async def _async_load(self) -> None:
         data = await self._store.async_load() or {}
-        self.accepted = {
-            d["id"]: set(d.get("kinds", [])) for d in data.get(CONF_DISCOVERED, [])
-        }
+        self.accepted = {}
+        self.names = {}
+        for d in data.get(CONF_DISCOVERED, []):
+            self.accepted[d["id"]] = set(d.get("kinds", []))
+            if d.get("name"):
+                self.names[d["id"]] = d["name"]
         self.banned = set(data.get(CONF_BANNED, []))
 
     @callback
     def _data_to_save(self) -> dict:
         return {
             CONF_DISCOVERED: [
-                {"id": i, "kinds": sorted(k)} for i, k in self.accepted.items()
+                {"id": i, "kinds": sorted(k), "name": self.names.get(i)}
+                for i, k in self.accepted.items()
             ],
             CONF_BANNED: sorted(self.banned),
         }

@@ -20,11 +20,13 @@ def gateway_device_info(entry_id: str, port: str) -> DeviceInfo:
     )
 
 
-def emitter_device_info(entry_id: str, dev_id: str) -> DeviceInfo:
+def emitter_device_info(
+    entry_id: str, dev_id: str, name: str | None = None
+) -> DeviceInfo:
     """DeviceInfo d'un emetteur decouvert, rattache au hub via via_device."""
     return DeviceInfo(
         identifiers={(DOMAIN, f"emitter_{dev_id}")},
         manufacturer=MANUFACTURER,
-        name=f"Edisio {dev_id}",
+        name=name or f"Edisio {dev_id}",
         via_device=gateway_id(entry_id),
     )
