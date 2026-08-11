@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_RX
+from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_REMOVED, SIGNAL_RX
 from .device import emitter_device_info
 
 EVENT_TYPES = ["on", "off", "toggle", "up", "down", "stop"]
@@ -30,8 +30,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         seen.add(dev_id)
         async_add_entities([EdisioRemoteEvent(entry.entry_id, dev_id, data.get("name"))])
 
+    @callback
+    def _removed(dev_id: str) -> None:
+        seen.discard(dev_id)
+
     entry.async_on_unload(
         async_dispatcher_connect(hass, SIGNAL_DISCOVERY, _discovered)
+    )
+    entry.async_on_unload(
+        async_dispatcher_connect(hass, SIGNAL_REMOVED, _removed)
     )
 
 

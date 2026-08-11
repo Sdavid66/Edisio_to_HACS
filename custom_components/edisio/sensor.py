@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_RX, SIGNAL_STATUS
+from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS
 from .device import emitter_device_info, gateway_device_info
 from .gateway import EdisioGateway
 
@@ -45,8 +45,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         if new:
             async_add_entities(new)
 
+    @callback
+    def _removed(dev_id: str) -> None:
+        seen.discard(f"{dev_id}_battery")
+        seen.discard(f"{dev_id}_temp")
+
     entry.async_on_unload(
         async_dispatcher_connect(hass, SIGNAL_DISCOVERY, _discovered)
+    )
+    entry.async_on_unload(
+        async_dispatcher_connect(hass, SIGNAL_REMOVED, _removed)
     )
 
 

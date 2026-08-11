@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.2
+- **Correctif : réajout d'un émetteur après suppression.** Supprimer une
+  télécommande depuis l'UI ne l'oubliait pas réellement (l'identifiant d'appareil
+  `emitter_<id>` n'était pas rapproché de l'`<id>` du store), et le cache `seen`
+  des plateformes empêchait la recréation des entités au réajout — l'appareil ne
+  réapparaissait pas. Désormais la suppression oublie bien l'émetteur et émet un
+  signal `SIGNAL_REMOVED` que les plateformes (`event`, `sensor`, `binary_sensor`)
+  écoutent pour purger leur cache. Le réajout recrée l'appareil immédiatement.
+
 ## 1.8.1
 - **Correctif détection dans « Ajouter un appareil »** : l'appui sur une
   télécommande **déjà connue** (ajoutée lors de tests précédents, persistée dans
