@@ -14,11 +14,18 @@
         "data": {
           "port": "Serial port"
         }
+      },
+      "discovery_confirm": {
+        "title": "Edisio emitter detected",
+        "description": "A new Edisio emitter (remote, button, sensor) has been detected:\n\n**ID {id}** — capabilities: {kinds}\n\nConfirm to add it. Its entities (button, state, battery/temperature) will be created and linked to the gateway."
       }
     },
+    "flow_title": "{name}",
     "abort": {
       "already_configured": "Ce port est deja configure.",
-      "reconfigure_successful": "Edisio dongle port updated."
+      "reconfigure_successful": "Edisio dongle port updated.",
+      "device_added": "Edisio emitter {id} added.",
+      "no_hub": "No Edisio gateway configured."
     }
   },
   "options": {

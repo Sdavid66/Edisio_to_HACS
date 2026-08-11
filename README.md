@@ -136,9 +136,13 @@ connus (voisinage, télécommandes non désirées) sont ignorées. Pour appairer
 - Service `edisio.inclusion_mode` (`enable`, `duration` en secondes).
 
 Pendant la fenêtre (120 s par défaut, fermeture automatique), appuyez sur le bouton
-de la télécommande ou laissez la sonde émettre : l'appareil et ses entités
-(`event` / `sensor` / `binary_sensor`) sont créés et **mémorisés** (ils survivent
-au redémarrage, sans réactiver l'inclusion).
+de la télécommande ou laissez la sonde émettre : une **carte « Émetteur Edisio
+détecté »** apparaît sur **Paramètres → Appareils et services**. Cliquez sur
+**Configurer** pour lier l'appareil ; ses entités (`event` bouton / `sensor` /
+`binary_sensor`) sont alors créées, rattachées à la passerelle, et **mémorisées**
+(elles survivent au redémarrage, sans réactiver l'inclusion). Vous voyez donc
+chaque appareil avant de l'ajouter, et les émetteurs du voisinage n'encombrent
+jamais votre installation.
 
 **Exclusion :**
 - Supprimez l'appareil depuis l'UI (**Appareil → Supprimer**), ou

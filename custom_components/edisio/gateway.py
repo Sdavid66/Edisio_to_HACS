@@ -7,7 +7,7 @@ from typing import Callable
 
 import serial_asyncio_fast as serial_asyncio
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, SOURCE_INTEGRATION_DISCOVERY
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
@@ -16,7 +16,7 @@ from homeassistant.util import dt as dt_util
 
 from . import protocol
 from .const import (
-    CONF_BANNED, CONF_DISCOVERED, EVENT_TYPES, INCLUSION_TIMEOUT,
+    CONF_BANNED, CONF_DISCOVERED, DOMAIN, EVENT_TYPES, INCLUSION_TIMEOUT,
     KNOWN_USB_IDS, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
     SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
 )
@@ -211,11 +211,11 @@ class EdisioGateway:
             if not self.inclusion:
                 _LOGGER.debug("Emetteur %s ignore (hors mode inclusion)", dev_id)
                 return
-            _LOGGER.info("Mode inclusion : nouvel emetteur %s %s", dev_id, kinds)
-            self.accepted[dev_id] = set(kinds)
-            self._persist()
-            decoded["kinds"] = set(kinds)
-            async_dispatcher_send(self.hass, SIGNAL_DISCOVERY, decoded)
+            # Mode inclusion : proposer l'emetteur via une carte de decouverte
+            # (Appareils et services) plutot qu'un ajout silencieux.
+            _LOGGER.info("Mode inclusion : emetteur %s detecte %s", dev_id, kinds)
+            self._async_discover_emitter(dev_id, kinds)
+            return
         else:
             # enrichit les capacites si une nouvelle apparait
             new_kinds = kinds - self.accepted[dev_id]
@@ -227,6 +227,37 @@ class EdisioGateway:
 
         async_dispatcher_send(self.hass, f"{SIGNAL_RX}_{dev_id}", decoded)
         async_dispatcher_send(self.hass, SIGNAL_RX, decoded)
+
+    # -------------------------------------------------------------- decouverte
+    @callback
+    def _async_discover_emitter(self, dev_id: str, kinds: set[str]) -> None:
+        """Ouvre une carte de decouverte (Appareils et services) pour un emetteur.
+
+        Deduplique : n'ouvre pas une 2e carte si un flux est deja en cours pour
+        ce meme identifiant.
+        """
+        for flow in self.hass.config_entries.flow.async_progress():
+            ctx = flow.get("context", {})
+            if flow.get("handler") == DOMAIN and ctx.get("edisio_id") == dev_id:
+                return
+        self.hass.async_create_task(
+            self.hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": SOURCE_INTEGRATION_DISCOVERY, "edisio_id": dev_id},
+                data={"id": dev_id, "kinds": sorted(kinds)},
+            )
+        )
+
+    async def async_accept_emitter(self, dev_id: str, kinds) -> None:
+        """Ajoute un emetteur decouvert (validation de la carte) et cree ses entites."""
+        dev_id = dev_id.upper()
+        self.banned.discard(dev_id)
+        self.accepted[dev_id] = set(kinds)
+        await self._store.async_save(self._data_to_save())
+        async_dispatcher_send(
+            self.hass, SIGNAL_DISCOVERY, {"id": dev_id, "kinds": set(kinds)}
+        )
+        _LOGGER.info("Emetteur %s ajoute via la decouverte", dev_id)
 
     # -------------------------------------------------------------- inclusion
     @callback

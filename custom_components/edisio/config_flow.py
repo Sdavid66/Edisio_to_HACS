@@ -71,6 +71,37 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({vol.Required(CONF_PORT): selector}),
         )
 
+    async def async_step_integration_discovery(self, discovery_info):
+        """Emetteur Edisio detecte : affiche une carte sur Appareils et services."""
+        self._disc_id = discovery_info["id"]
+        self._disc_kinds = discovery_info.get("kinds", [])
+        await self.async_set_unique_id(
+            f"edisio_emitter_{self._disc_id}", raise_on_progress=False
+        )
+        self.context["title_placeholders"] = {"name": f"Edisio {self._disc_id}"}
+        return await self.async_step_discovery_confirm()
+
+    async def async_step_discovery_confirm(self, user_input=None):
+        """Validation de la carte : lie l'emetteur et cree ses entites."""
+        entries = self._async_current_entries()
+        if not entries:
+            return self.async_abort(reason="no_hub")
+        if user_input is not None:
+            gateway = self.hass.data[DOMAIN][entries[0].entry_id]
+            await gateway.async_accept_emitter(self._disc_id, self._disc_kinds)
+            return self.async_abort(
+                reason="device_added",
+                description_placeholders={"id": self._disc_id},
+            )
+        return self.async_show_form(
+            step_id="discovery_confirm",
+            data_schema=vol.Schema({}),
+            description_placeholders={
+                "id": self._disc_id,
+                "kinds": ", ".join(self._disc_kinds) or "—",
+            },
+        )
+
     async def async_step_reconfigure(self, user_input=None):
         """Changer le port serie du dongle sans perdre les modules configures."""
         entry = self._get_reconfigure_entry()
