@@ -45,6 +45,7 @@ MANUFACTURER = "Edisio"
 SIGNAL_RX = f"{DOMAIN}_rx"                 # trame entrante decodee
 SIGNAL_DISCOVERY = f"{DOMAIN}_discovery"   # nouveau module detecte
 SIGNAL_STATUS = f"{DOMAIN}_status"         # changement d'etat de la passerelle
+SIGNAL_REMOVED = f"{DOMAIN}_removed"       # emetteur supprime (purge des caches)
 
 # Services
 SERVICE_LEARN = "learn"

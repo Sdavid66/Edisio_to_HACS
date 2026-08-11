@@ -18,7 +18,7 @@ from . import protocol
 from .const import (
     CONF_BANNED, CONF_DISCOVERED, DOMAIN, EVENT_TYPES, INCLUSION_TIMEOUT,
     KNOWN_USB_IDS, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
-    SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
+    SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -337,6 +337,8 @@ class EdisioGateway:
             self.banned.add(dev_id)
         self._persist()
         await self._remove_from_registries(dev_id)
+        # Purge les caches "seen" des plateformes -> permet un re-ajout ulterieur.
+        async_dispatcher_send(self.hass, SIGNAL_REMOVED, dev_id)
         _LOGGER.info("Emetteur %s exclu%s", dev_id, " et banni" if ban else "")
 
     async def _remove_from_registries(self, dev_id: str) -> None:

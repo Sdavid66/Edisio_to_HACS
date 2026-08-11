@@ -80,10 +80,17 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_remove_config_entry_device(
     hass: HomeAssistant, entry: ConfigEntry, device_entry: dr.DeviceEntry
 ) -> bool:
-    """Autorise la suppression d'un emetteur decouvert depuis l'UI (= exclusion)."""
+    """Autorise la suppression d'un emetteur decouvert depuis l'UI (= exclusion).
+
+    Les appareils emetteurs portent l'identifiant ``(edisio, emitter_<id>)`` ; on
+    en extrait l'``<id>`` reel pour l'oublier dans la passerelle.
+    """
     gateway: EdisioGateway = hass.data[DOMAIN][entry.entry_id]
-    for domain, dev_id in device_entry.identifiers:
-        if domain == DOMAIN and dev_id in gateway.accepted:
+    for domain, ident in device_entry.identifiers:
+        if domain != DOMAIN or not ident.startswith("emitter_"):
+            continue
+        dev_id = ident[len("emitter_"):]
+        if dev_id in gateway.accepted:
             await gateway.async_forget(dev_id)
     return True
 
