@@ -5,9 +5,30 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import models, protocol
-from .const import CONF_CHANNEL, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN
+from .const import (
+    CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN,
+    SUBENTRY_TYPE_DEVICE,
+)
 from .device import gateway_id
 from .gateway import EdisioGateway
+
+
+def expand_channels(data: dict) -> list[dict]:
+    """Developpe un module (sous-entree) en un dict par canal du modele."""
+    model = models.model(data[CONF_MODEL])
+    if not model:
+        return []
+    base = data[CONF_NAME]
+    multi = len(model["channels"]) > 1
+    return [
+        {
+            CONF_NAME: f"{base} C{ch}" if multi else base,
+            CONF_MODEL: data[CONF_MODEL],
+            CONF_CHANNEL: ch,
+            CONF_EDISIO_ID: data[CONF_EDISIO_ID],
+        }
+        for ch in model["channels"]
+    ]
 
 
 class EdisioReceiver(Entity):
@@ -43,9 +64,32 @@ class EdisioReceiver(Entity):
         )
 
     @staticmethod
-    def devices_for(entry, platform: str) -> list[dict]:
-        from .const import CONF_DEVICES
-        return [
+    def groups_for(entry, platform: str) -> list[tuple[str | None, list[dict]]]:
+        """Récepteurs d'une plateforme, groupés par source.
+
+        Retourne une liste de couples ``(config_subentry_id | None, [dicts])`` :
+        - ``None`` pour les récepteurs « legacy » stockés dans les options
+          (compat : installations d'avant les sous-entrées) ;
+        - l'``id`` de la sous-entrée pour ceux ajoutés via *Ajouter un appareil*.
+        """
+        groups: list[tuple[str | None, list[dict]]] = []
+
+        legacy = [
             d for d in entry.options.get(CONF_DEVICES, [])
-            if models.model(d[CONF_MODEL]) and models.model(d[CONF_MODEL])["platform"] == platform
+            if models.model(d[CONF_MODEL])
+            and models.model(d[CONF_MODEL])["platform"] == platform
         ]
+        if legacy:
+            groups.append((None, legacy))
+
+        for sub_id, sub in entry.subentries.items():
+            if sub.subentry_type != SUBENTRY_TYPE_DEVICE:
+                continue
+            model = models.model(sub.data.get(CONF_MODEL))
+            if not model or model["platform"] != platform:
+                continue
+            chans = expand_channels(dict(sub.data))
+            if chans:
+                groups.append((sub_id, chans))
+
+        return groups

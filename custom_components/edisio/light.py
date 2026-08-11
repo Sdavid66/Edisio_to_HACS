@@ -13,9 +13,10 @@ from .entity import EdisioReceiver
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
                             async_add_entities: AddEntitiesCallback) -> None:
     gw = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        EdisioLight(gw, d) for d in EdisioReceiver.devices_for(entry, "light")
-    )
+    for sub_id, devs in EdisioReceiver.groups_for(entry, "light"):
+        async_add_entities(
+            (EdisioLight(gw, d) for d in devs), config_subentry_id=sub_id
+        )
 
 
 class EdisioLight(EdisioReceiver, LightEntity):

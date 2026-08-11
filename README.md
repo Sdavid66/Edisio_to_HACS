@@ -44,9 +44,15 @@ Dès qu'une trame est reçue, l'appareil est créé automatiquement :
 - `binary_sensor.edisio_<id>_etat` : dernier état ON/OFF (contacts, interrupteurs).
 
 ### Modules récepteurs (lumières, volets) — à ajouter manuellement
-Dans **Configurer** sur l'intégration → *Ajouter un module pilotable* :
-choisir un type (`switch`, `light`, `dimmer`, `cover`), un *groupe* et,
-optionnellement, un *ID Edisio* (laissé vide → un émetteur virtuel est généré).
+Sur la page de l'intégration (**Paramètres → Appareils et services → Edisio**),
+cliquez sur le bouton **Ajouter un appareil** (à côté de *Ajouter un Hub*, comme
+pour Z-Wave/Zigbee) : choisissez le **modèle** dans le catalogue, donnez un **nom**
+et, optionnellement, un *ID Edisio* (laissé vide → un émetteur virtuel est généré).
+Tous les canaux du module sont créés et rattachés à la passerelle. L'appareil est
+ensuite **reconfigurable** (nom/ID) et **supprimable** individuellement.
+
+> Les récepteurs ajoutés avant la v1.7.0 (via *Configurer*) restent pris en
+> charge sans rien changer.
 
 **Appairage** : mettre le récepteur en apprentissage, puis appeler le service
 `edisio.learn` avec l'`edisio_id` de l'entité (ou simplement actionner l'entité
@@ -120,8 +126,8 @@ Assistant ne lit jamais la base Jeedom : il ne charge que le `edisio_import.json
 > Haut/Bas sont importés en **switch** (ON = Haut, OFF = Bas), trames identiques
 > à Jeedom. Pour les exposer plutôt en entités **`cover`** (modèle *EDR-B4
 > Volet/Store*, réf. `120C`), relancez l'outil avec `--stores-as-cover`. Vous
-> pouvez aussi, à tout moment, ajouter un volet manuellement via *Configurer →
-> Ajouter un module pilotable → EDR-B4 (Volet/Store)*.
+> pouvez aussi, à tout moment, ajouter un volet manuellement via le bouton
+> *Ajouter un appareil → EDR-B4 (Volet/Store)*.
 >
 > Détails et format du fichier : [`tools/jeedom_migration/`](tools/jeedom_migration/).
 

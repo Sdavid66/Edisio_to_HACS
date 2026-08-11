@@ -16,9 +16,11 @@ from .gateway import EdisioGateway
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
                             async_add_entities) -> None:
     gw: EdisioGateway = hass.data[DOMAIN][entry.entry_id]
-    entities = [EdisioSwitch(gw, d) for d in EdisioReceiver.devices_for(entry, "switch")]
-    entities.append(EdisioInclusionSwitch(gw, entry))
-    async_add_entities(entities)
+    for sub_id, devs in EdisioReceiver.groups_for(entry, "switch"):
+        async_add_entities(
+            (EdisioSwitch(gw, d) for d in devs), config_subentry_id=sub_id
+        )
+    async_add_entities([EdisioInclusionSwitch(gw, entry)])
 
 
 class EdisioSwitch(EdisioReceiver, SwitchEntity):
