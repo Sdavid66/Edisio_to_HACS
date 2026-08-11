@@ -36,7 +36,6 @@
       "init": {
         "title": "Modules Edisio",
         "menu_options": {
-          "add_device": "Add a controllable module",
           "remove_device": "Remove a module",
           "import_jeedom": "Import from Jeedom"
         }
@@ -53,24 +52,10 @@
         "title": "Confirm import",
         "description": "Found: {receivers} controllable receiver(s), {emitters} emitter(s), {warnings} warning(s).\n\nConfirm to add these devices. Existing duplicates are skipped."
       },
-      "add_device": {
-        "title": "Choisir le modèle Edisio",
-        "data": {
-          "model": "Modèle"
-        }
-      },
       "remove_device": {
-        "title": "Supprimer des modules",
+        "title": "Remove modules",
         "data": {
-          "remove": "Modules a supprimer"
-        }
-      },
-      "configure_device": {
-        "title": "Configure receiver",
-        "description": "Model: {model}. All channels of the module will be created.",
-        "data": {
-          "name": "Name",
-          "edisio_id": "Edisio ID (blank = generated)"
+          "remove": "Modules to remove"
         }
       }
     },
@@ -80,6 +65,39 @@
       "invalid_format": "Invalid import file (JSON expected, produced by the edisio_migrate.py tool).",
       "nothing_found": "No Edisio devices in this import file.",
       "no_input": "Upload a file or provide a path."
+    }
+  },
+  "config_subentries": {
+    "device": {
+      "title": "Edisio device",
+      "entry_type": "Device",
+      "initiate_flow": {
+        "user": "Add device",
+        "reconfigure": "Edit device"
+      },
+      "step": {
+        "user": {
+          "title": "Choose the Edisio model",
+          "data": {
+            "model": "Model"
+          }
+        },
+        "configure": {
+          "title": "Configure the device",
+          "description": "Model: {model}. All channels of the module will be created.",
+          "data": {
+            "name": "Name",
+            "edisio_id": "Edisio ID (blank = generated)"
+          }
+        },
+        "reconfigure": {
+          "title": "Edit the device",
+          "data": {
+            "name": "Name",
+            "edisio_id": "Edisio ID"
+          }
+        }
+      }
     }
   }
 }

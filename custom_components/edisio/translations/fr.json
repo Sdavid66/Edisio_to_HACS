@@ -36,7 +36,6 @@
       "init": {
         "title": "Modules Edisio",
         "menu_options": {
-          "add_device": "Ajouter un module pilotable",
           "remove_device": "Supprimer un module",
           "import_jeedom": "Importer depuis Jeedom"
         }
@@ -53,24 +52,10 @@
         "title": "Confirmer l'import",
         "description": "Trouvé : {receivers} récepteur(s) pilotable(s), {emitters} émetteur(s), {warnings} avertissement(s).\n\nValider pour ajouter ces équipements. Les doublons existants sont ignorés."
       },
-      "add_device": {
-        "title": "Choisir le modèle Edisio",
-        "data": {
-          "model": "Modèle"
-        }
-      },
       "remove_device": {
         "title": "Supprimer des modules",
         "data": {
           "remove": "Modules à supprimer"
-        }
-      },
-      "configure_device": {
-        "title": "Configurer le récepteur",
-        "description": "Modèle : {model}. Tous les canaux du module seront créés.",
-        "data": {
-          "name": "Nom",
-          "edisio_id": "ID Edisio (vide = généré)"
         }
       }
     },
@@ -80,6 +65,39 @@
       "invalid_format": "Fichier d'import invalide (JSON attendu, produit par l'outil edisio_migrate.py).",
       "nothing_found": "Aucun équipement Edisio dans ce fichier d'import.",
       "no_input": "Téléversez un fichier ou indiquez un chemin."
+    }
+  },
+  "config_subentries": {
+    "device": {
+      "title": "Appareil Edisio",
+      "entry_type": "Appareil",
+      "initiate_flow": {
+        "user": "Ajouter un appareil",
+        "reconfigure": "Modifier l'appareil"
+      },
+      "step": {
+        "user": {
+          "title": "Choisir le modèle Edisio",
+          "data": {
+            "model": "Modèle"
+          }
+        },
+        "configure": {
+          "title": "Configurer l'appareil",
+          "description": "Modèle : {model}. Tous les canaux du module seront créés.",
+          "data": {
+            "name": "Nom",
+            "edisio_id": "ID Edisio (vide = généré)"
+          }
+        },
+        "reconfigure": {
+          "title": "Modifier l'appareil",
+          "data": {
+            "name": "Nom",
+            "edisio_id": "ID Edisio"
+          }
+        }
+      }
     }
   }
 }

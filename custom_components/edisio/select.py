@@ -16,9 +16,10 @@ MODES = {"heat_on": "Confort", "heat_off": "Arret", "heat_other": "Eco"}
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
                             async_add_entities: AddEntitiesCallback) -> None:
     gw = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        EdisioHeating(gw, d) for d in EdisioReceiver.devices_for(entry, "select")
-    )
+    for sub_id, devs in EdisioReceiver.groups_for(entry, "select"):
+        async_add_entities(
+            (EdisioHeating(gw, d) for d in devs), config_subentry_id=sub_id
+        )
 
 
 class EdisioHeating(EdisioReceiver, SelectEntity):

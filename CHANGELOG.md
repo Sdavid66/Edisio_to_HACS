@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.0
+- **Bouton « Ajouter un appareil »** (comme Z-Wave/Zigbee) sur la page de
+  l'intégration, à côté de « Ajouter un Hub ». Il ouvre un flux natif de
+  **sous-entrée** : choix du modèle (catalogue), nom et ID Edisio → l'appareil
+  et tous ses canaux sont créés, rattachés à la passerelle. Reconfiguration
+  (nom/ID) et suppression natives par appareil.
+- **Aucune migration, aucun risque** : les récepteurs déjà configurés (stockés
+  dans les options) continuent de fonctionner tels quels. Les plateformes lisent
+  désormais **les deux sources** (options historiques + sous-entrées). Les
+  nouveaux appareils passent par le bouton.
+- L'entrée « Ajouter un module pilotable » du menu *Configurer* est retirée (le
+  bouton la remplace) ; *Supprimer un module* et *Importer depuis Jeedom* restent.
+
 ## 1.6.0
 - **Nommer l'émetteur directement à la découverte** : la carte « Émetteur Edisio
   détecté » propose désormais un champ **Nom de l'appareil** (pré-rempli

@@ -8,14 +8,16 @@ import voluptuous as vol
 from serial.tools import list_ports
 
 from homeassistant.components.file_upload import process_uploaded_file
-from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
+from homeassistant.config_entries import (
+    ConfigEntry, ConfigFlow, ConfigSubentryFlow, OptionsFlow,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import FileSelector, FileSelectorConfig
 
 from . import jeedom_import, models
 from .const import (
     CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME,
-    CONF_PORT, DOMAIN, KNOWN_USB_IDS,
+    CONF_PORT, DOMAIN, KNOWN_USB_IDS, SUBENTRY_TYPE_DEVICE,
 )
 
 CONF_FILE = "file"
@@ -129,10 +131,80 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
         )
 
+    @classmethod
+    @callback
+    def async_get_supported_subentry_types(
+        cls, config_entry: ConfigEntry
+    ) -> dict[str, type[ConfigSubentryFlow]]:
+        """Active le bouton « Ajouter un appareil » sur la page d'integration."""
+        return {SUBENTRY_TYPE_DEVICE: EdisioDeviceSubentryFlow}
+
     @staticmethod
     @callback
     def async_get_options_flow(entry: ConfigEntry) -> OptionsFlow:
         return EdisioOptionsFlow(entry)
+
+
+class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
+    """Ajout/reconfiguration d'un recepteur pilotable en tant que sous-entree."""
+
+    _model: str | None = None
+
+    async def async_step_user(self, user_input=None):
+        """Etape 1 : choisir le modele reel (EMV-400, EDR-D4, …)."""
+        if user_input is not None:
+            self._model = user_input[CONF_MODEL]
+            return await self.async_step_configure()
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_MODEL): vol.In(models.choices())}
+            ),
+        )
+
+    async def async_step_configure(self, user_input=None):
+        """Etape 2 : nom et ID Edisio (vide = emetteur virtuel genere)."""
+        mdl = models.model(self._model)
+        if user_input is not None:
+            edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
+            if not edisio_id:
+                edisio_id = secrets.token_hex(4).upper()
+            return self.async_create_entry(
+                title=user_input[CONF_NAME],
+                data={
+                    CONF_NAME: user_input[CONF_NAME],
+                    CONF_MODEL: self._model,
+                    CONF_EDISIO_ID: edisio_id,
+                },
+            )
+        return self.async_show_form(
+            step_id="configure",
+            data_schema=vol.Schema({
+                vol.Required(CONF_NAME, default=mdl["name"]): str,
+                vol.Optional(CONF_EDISIO_ID, default=""): str,
+            }),
+            description_placeholders={"model": mdl["name"]},
+        )
+
+    async def async_step_reconfigure(self, user_input=None):
+        """Modifier le nom / l'ID Edisio d'un appareil existant."""
+        subentry = self._get_reconfigure_subentry()
+        if user_input is not None:
+            edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
+            data = {**subentry.data, CONF_NAME: user_input[CONF_NAME]}
+            if edisio_id:
+                data[CONF_EDISIO_ID] = edisio_id
+            return self.async_update_and_abort(
+                self._get_entry(), subentry, data=data, title=user_input[CONF_NAME]
+            )
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema({
+                vol.Required(CONF_NAME, default=subentry.data.get(CONF_NAME, "")): str,
+                vol.Optional(CONF_EDISIO_ID,
+                             default=subentry.data.get(CONF_EDISIO_ID, "")): str,
+            }),
+        )
 
 
 class EdisioOptionsFlow(OptionsFlow):
@@ -146,7 +218,7 @@ class EdisioOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
             step_id="init",
-            menu_options=["add_device", "remove_device", "import_jeedom"],
+            menu_options=["remove_device", "import_jeedom"],
         )
 
     # ------------------------------------------------------------- import Jeedom
@@ -217,44 +289,6 @@ class EdisioOptionsFlow(OptionsFlow):
                 "emitters": str(len(data.get("emitters", []))),
                 "warnings": str(len(data.get("warnings", []))),
             },
-        )
-
-    async def async_step_add_device(self, user_input=None):
-        """Etape 1 : choisir le modele reel (EMV-400, EDR-D4, …)."""
-        if user_input is not None:
-            self._model = user_input[CONF_MODEL]
-            return await self.async_step_configure_device()
-        return self.async_show_form(
-            step_id="add_device",
-            data_schema=vol.Schema({vol.Required(CONF_MODEL): vol.In(models.choices())}),
-        )
-
-    async def async_step_configure_device(self, user_input=None):
-        """Etape 2 : nom et ID virtuel. Tous les canaux du module sont crees."""
-        mdl = models.model(self._model)
-        if user_input is not None:
-            devices = list(self.entry.options.get(CONF_DEVICES, []))
-            edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
-            if not edisio_id:
-                edisio_id = secrets.token_hex(4).upper()
-            base = user_input[CONF_NAME]
-            multi = len(mdl["channels"]) > 1
-            for ch in mdl["channels"]:
-                devices.append({
-                    CONF_NAME: f"{base} C{ch}" if multi else base,
-                    CONF_MODEL: self._model,
-                    CONF_CHANNEL: ch,
-                    CONF_EDISIO_ID: edisio_id,
-                })
-            return self.async_create_entry(title="", data={CONF_DEVICES: devices})
-
-        return self.async_show_form(
-            step_id="configure_device",
-            data_schema=vol.Schema({
-                vol.Required(CONF_NAME, default=mdl["name"]): str,
-                vol.Optional(CONF_EDISIO_ID, default=""): str,
-            }),
-            description_placeholders={"model": mdl["name"]},
         )
 
     async def async_step_remove_device(self, user_input=None):
