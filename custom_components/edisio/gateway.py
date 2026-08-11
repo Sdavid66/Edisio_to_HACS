@@ -89,6 +89,7 @@ class EdisioGateway:
         self._store: Store = Store(hass, 1, f"edisio_{entry.entry_id}")
         self.accepted: dict[str, set[str]] = {}   # {id: set(kinds)}
         self.names: dict[str, str] = {}           # {id: nom choisi a la decouverte}
+        self.remote_ids: set[str] = set()         # id des telecommandes (sous-entrees)
         self.banned: set[str] = set()
         self.inclusion = False
         self._capturing = False                     # assistant « Ajouter un appareil »
@@ -212,11 +213,16 @@ class EdisioGateway:
         # Assistant « Ajouter un appareil » : on capture le premier appui recu,
         # que l'emetteur soit deja connu ou non (pas de carte pendant la capture).
         if self._capturing:
-            self._pending_emitter = {"id": dev_id, "kinds": sorted(kinds)}
-            _LOGGER.info("Capture : emetteur %s detecte %s", dev_id, sorted(kinds))
+            self._pending_emitter = {
+                "id": dev_id, "kinds": sorted(kinds),
+                "button": decoded.get("button"),
+            }
+            _LOGGER.info("Capture : emetteur %s bouton %s %s",
+                         dev_id, decoded.get("button"), sorted(kinds))
             return
 
-        known = dev_id in self.accepted
+        # Une telecommande (sous-entree) est connue meme si absente du store.
+        known = dev_id in self.accepted or dev_id in self.remote_ids
         if not known:
             if not self.inclusion:
                 _LOGGER.debug("Emetteur %s ignore (hors mode inclusion)", dev_id)
@@ -226,8 +232,8 @@ class EdisioGateway:
             _LOGGER.info("Mode inclusion : emetteur %s detecte %s", dev_id, kinds)
             self._async_discover_emitter(dev_id, kinds)
             return
-        else:
-            # enrichit les capacites si une nouvelle apparait
+        if dev_id in self.accepted:
+            # enrichit les capacites si une nouvelle apparait (emetteurs du store)
             new_kinds = kinds - self.accepted[dev_id]
             if new_kinds:
                 self.accepted[dev_id] |= new_kinds
@@ -301,6 +307,11 @@ class EdisioGateway:
         pending = self._pending_emitter
         self._pending_emitter = None
         return pending
+
+    @callback
+    def async_set_known_remotes(self, ids: set[str]) -> None:
+        """Declare les id des telecommandes (sous-entrees) : trames routees, pas de carte."""
+        self.remote_ids = {i.upper() for i in ids}
 
     # -------------------------------------------------------------- inclusion
     @callback

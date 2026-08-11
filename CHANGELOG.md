@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.0
+- **Télécommandes multi-boutons** (1 à 5 boutons, boutons muraux…). *Ajouter un
+  appareil → Détecter une télécommande* :
+  1. on nomme la télécommande ;
+  2. pour chaque bouton : on le nomme (ex. *Centre*, *Haut*…), l'inclusion
+     s'active, on appuie, le bouton est mémorisé ;
+  3. « Ajouter un autre bouton ? » → oui (on recommence) ou Terminer.
+  Résultat : **un seul appareil** « télécommande » regroupant **une entité
+  `event` par bouton** (+ une batterie), au lieu de plusieurs entrées.
+- **Ajouter un bouton plus tard** : depuis la fiche de l'appareil →
+  **Reconfigurer** → on nomme le nouveau bouton et on l'apprend par inclusion.
+- La télécommande est enregistrée comme **sous-entrée** ; ses trames sont routées
+  vers les bonnes entités bouton (via leur code), sans rouvrir de carte.
+
 ## 1.8.2
 - **Correctif : réajout d'un émetteur après suppression.** Supprimer une
   télécommande depuis l'UI ne l'oubliait pas réellement (l'identifiant d'appareil

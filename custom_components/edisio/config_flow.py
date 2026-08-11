@@ -16,8 +16,9 @@ from homeassistant.helpers.selector import FileSelector, FileSelectorConfig
 
 from . import jeedom_import, models
 from .const import (
-    CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME,
-    CONF_PORT, DOMAIN, KNOWN_USB_IDS, SUBENTRY_TYPE_DEVICE,
+    CONF_BUTTONS, CONF_CHANNEL, CONF_CODE, CONF_DEV_ID, CONF_DEVICES,
+    CONF_EDISIO_ID, CONF_KIND, CONF_MODEL, CONF_NAME, CONF_PORT, DOMAIN,
+    KIND_REMOTE, KNOWN_USB_IDS, SUBENTRY_TYPE_DEVICE,
 )
 
 CONF_FILE = "file"
@@ -146,64 +147,101 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
-    """Assistant « Ajouter un appareil » : detection d'emetteur ou ajout de recepteur."""
+    """Assistant « Ajouter un appareil » : telecommande (multi-boutons) ou recepteur."""
 
     _model: str | None = None
-    _pending: dict | None = None
+    _remote_name: str = ""
+    _dev_id: str | None = None
+    _buttons: list | None = None
+    _btn_name: str = ""
 
     def _gateway(self):
         entry = self._get_entry()
         return self.hass.data.get(DOMAIN, {}).get(entry.entry_id) if entry else None
 
     async def async_step_user(self, user_input=None):
-        """Menu : detecter un emetteur (bouton/telecommande) ou ajouter un recepteur."""
+        """Menu : detecter une telecommande/bouton ou ajouter un recepteur."""
         return self.async_show_menu(step_id="user", menu_options=["pair", "receiver"])
 
-    # ---------------------------------------- emetteur : inclusion + appui bouton
+    # ---------------------------------------- telecommande : apprentissage bouton par bouton
     async def async_step_pair(self, user_input=None):
-        """Active l'inclusion sur la passerelle et attend un appui bouton."""
+        """Etape 1 : nommer la telecommande."""
+        if self._gateway() is None:
+            return self.async_abort(reason="no_hub")
+        if user_input is not None:
+            self._remote_name = (user_input.get(CONF_NAME) or "").strip() \
+                or "Telecommande Edisio"
+            self._buttons = []
+            self._dev_id = None
+            return await self.async_step_pair_button()
+        return self.async_show_form(
+            step_id="pair",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_NAME, default="Telecommande Edisio"): str}
+            ),
+        )
+
+    async def async_step_pair_button(self, user_input=None):
+        """Nommer le prochain bouton (avant l'appui)."""
+        n = len(self._buttons or []) + 1
+        if user_input is not None:
+            self._btn_name = (user_input.get(CONF_NAME) or "").strip() or f"Bouton {n}"
+            return await self.async_step_pair_capture()
+        return self.async_show_form(
+            step_id="pair_button",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_NAME, default=f"Bouton {n}"): str}
+            ),
+            description_placeholders={"n": str(n)},
+        )
+
+    async def async_step_pair_capture(self, user_input=None):
+        """Inclusion : attend l'appui sur le bouton nomme, puis le memorise."""
         gateway = self._gateway()
         if gateway is None:
             return self.async_abort(reason="no_hub")
-
         errors = None
         if user_input is not None:
             pending = gateway.take_pending_emitter()
-            if pending:
-                self._pending = pending
-                return await self.async_step_pair_name()
-            errors = {"base": "no_press"}
-
-        # (Re)arme la capture a chaque affichage : la fenetre d'inclusion reste
-        # ouverte tant que l'utilisateur n'a pas valide un appui.
-        gateway.async_begin_capture()
-        return self.async_show_form(
-            step_id="pair", data_schema=vol.Schema({}), errors=errors,
-        )
-
-    async def async_step_pair_name(self, user_input=None):
-        """Nomme l'emetteur detecte et l'ajoute."""
-        gateway = self._gateway()
-        if user_input is not None:
-            name = (user_input.get(CONF_NAME) or "").strip() or None
-            if gateway is not None:
-                await gateway.async_accept_emitter(
-                    self._pending["id"], self._pending["kinds"], name
+            if not pending:
+                errors = {"base": "no_press"}
+            elif self._dev_id and pending["id"] != self._dev_id:
+                errors = {"base": "wrong_remote"}
+            elif any(b[CONF_CODE] == pending.get("button") for b in self._buttons):
+                errors = {"base": "already_added"}
+            else:
+                self._dev_id = pending["id"]
+                self._buttons.append(
+                    {CONF_CODE: pending.get("button"), CONF_NAME: self._btn_name}
                 )
                 gateway.async_end_capture()
-            return self.async_abort(
-                reason="emitter_added",
-                description_placeholders={"id": self._pending["id"]},
-            )
+                return await self.async_step_pair_next()
+        gateway.async_begin_capture()
         return self.async_show_form(
-            step_id="pair_name",
-            data_schema=vol.Schema({
-                vol.Optional(CONF_NAME,
-                             default=f"Edisio {self._pending['id']}"): str,
-            }),
-            description_placeholders={
-                "id": self._pending["id"],
-                "kinds": ", ".join(self._pending["kinds"]) or "—",
+            step_id="pair_capture", data_schema=vol.Schema({}), errors=errors,
+            description_placeholders={"button": self._btn_name},
+        )
+
+    async def async_step_pair_next(self, user_input=None):
+        """Ajouter un autre bouton ou terminer."""
+        return self.async_show_menu(
+            step_id="pair_next", menu_options=["add_another", "finish"]
+        )
+
+    async def async_step_add_another(self, user_input=None):
+        return await self.async_step_pair_button()
+
+    async def async_step_finish(self, user_input=None):
+        gateway = self._gateway()
+        if gateway is not None:
+            gateway.async_end_capture()
+        return self.async_create_entry(
+            title=self._remote_name,
+            data={
+                CONF_KIND: KIND_REMOTE,
+                CONF_DEV_ID: self._dev_id,
+                CONF_NAME: self._remote_name,
+                CONF_BUTTONS: self._buttons,
             },
         )
 
@@ -245,8 +283,11 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
         )
 
     async def async_step_reconfigure(self, user_input=None):
-        """Modifier le nom / l'ID Edisio d'un appareil existant."""
+        """Reconfiguration : ajouter un bouton (telecommande) ou nom/ID (recepteur)."""
         subentry = self._get_reconfigure_subentry()
+        if subentry.data.get(CONF_KIND) == KIND_REMOTE:
+            return await self.async_step_add_button()
+        # Recepteur : nom / ID Edisio
         if user_input is not None:
             edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
             data = {**subentry.data, CONF_NAME: user_input[CONF_NAME]}
@@ -262,6 +303,53 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
                 vol.Optional(CONF_EDISIO_ID,
                              default=subentry.data.get(CONF_EDISIO_ID, "")): str,
             }),
+        )
+
+    # ---------------------------------------- telecommande : ajouter un bouton (depuis la fiche)
+    async def async_step_add_button(self, user_input=None):
+        """Nommer le bouton a apprendre (reconfiguration d'une telecommande)."""
+        subentry = self._get_reconfigure_subentry()
+        n = len(subentry.data.get(CONF_BUTTONS, [])) + 1
+        if user_input is not None:
+            self._btn_name = (user_input.get(CONF_NAME) or "").strip() or f"Bouton {n}"
+            return await self.async_step_add_button_capture()
+        return self.async_show_form(
+            step_id="add_button",
+            data_schema=vol.Schema(
+                {vol.Required(CONF_NAME, default=f"Bouton {n}"): str}
+            ),
+        )
+
+    async def async_step_add_button_capture(self, user_input=None):
+        """Inclusion : apprend un bouton de plus et met a jour la telecommande."""
+        gateway = self._gateway()
+        subentry = self._get_reconfigure_subentry()
+        if gateway is None:
+            return self.async_abort(reason="no_hub")
+        dev_id = subentry.data[CONF_DEV_ID]
+        buttons = list(subentry.data.get(CONF_BUTTONS, []))
+        errors = None
+        if user_input is not None:
+            pending = gateway.take_pending_emitter()
+            if not pending:
+                errors = {"base": "no_press"}
+            elif pending["id"] != dev_id:
+                errors = {"base": "wrong_remote"}
+            elif any(b[CONF_CODE] == pending.get("button") for b in buttons):
+                errors = {"base": "already_added"}
+            else:
+                buttons.append(
+                    {CONF_CODE: pending.get("button"), CONF_NAME: self._btn_name}
+                )
+                gateway.async_end_capture()
+                return self.async_update_and_abort(
+                    self._get_entry(), subentry,
+                    data={**subentry.data, CONF_BUTTONS: buttons},
+                )
+        gateway.async_begin_capture()
+        return self.async_show_form(
+            step_id="add_button_capture", data_schema=vol.Schema({}), errors=errors,
+            description_placeholders={"button": self._btn_name},
         )
 
 

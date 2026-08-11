@@ -6,6 +6,12 @@ PLATFORMS = ["switch", "light", "cover", "select", "sensor", "binary_sensor", "e
 
 # Type de sous-entree (bouton « Ajouter un appareil » sur la page d'integration)
 SUBENTRY_TYPE_DEVICE = "device"
+# Cles des sous-entrees telecommande
+CONF_KIND = "kind"
+CONF_DEV_ID = "dev_id"
+CONF_BUTTONS = "buttons"
+CONF_CODE = "code"
+KIND_REMOTE = "remote"
 
 # Configuration
 CONF_PORT = "port"
