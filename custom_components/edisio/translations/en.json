@@ -73,7 +73,7 @@
       "entry_type": "Device",
       "initiate_flow": {
         "user": "Add device",
-        "reconfigure": "Edit device"
+        "reconfigure": "Reconfigure"
       },
       "step": {
         "user": {
@@ -84,14 +84,28 @@
           }
         },
         "pair": {
-          "title": "Detect an emitter",
-          "description": "Inclusion mode is now active on the Edisio gateway.\n\nPress a button on your Edisio remote / switch now, then click **Submit**."
-        },
-        "pair_name": {
-          "title": "Name the emitter",
-          "description": "Emitter detected: **{id}** (capabilities: {kinds}).\n\nGive it a name.",
+          "title": "New remote",
+          "description": "Give the remote a name. You will then learn its buttons one by one.",
           "data": {
-            "name": "Device name"
+            "name": "Remote name"
+          }
+        },
+        "pair_button": {
+          "title": "Button {n}",
+          "description": "Which button will you learn? Give it a name (e.g. Centre, Up, Down…).",
+          "data": {
+            "name": "Button name"
+          }
+        },
+        "pair_capture": {
+          "title": "Press the button",
+          "description": "Inclusion mode is active.\n\nNow press the **{button}** button on the remote, then click **Submit**."
+        },
+        "pair_next": {
+          "title": "Button saved",
+          "menu_options": {
+            "add_another": "Add another button",
+            "finish": "Finish"
           }
         },
         "receiver": {
@@ -114,13 +128,25 @@
             "name": "Name",
             "edisio_id": "Edisio ID"
           }
+        },
+        "add_button": {
+          "title": "Add a button",
+          "description": "Give the new button a name (e.g. Centre, Up…).",
+          "data": {
+            "name": "Button name"
+          }
+        },
+        "add_button_capture": {
+          "title": "Press the button",
+          "description": "Inclusion mode is active.\n\nPress the **{button}** button on the remote, then click **Submit**."
         }
       },
       "error": {
-        "no_press": "No button press detected. Press a button on the remote, then submit."
+        "no_press": "No button press detected. Press the button, then submit.",
+        "wrong_remote": "This press came from another remote. Press a button on the same remote.",
+        "already_added": "This button is already learned. Press another button."
       },
       "abort": {
-        "emitter_added": "Edisio emitter {id} added.",
         "no_hub": "Edisio gateway not found."
       }
     }

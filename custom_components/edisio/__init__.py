@@ -15,9 +15,9 @@ from homeassistant.loader import async_get_integration
 from . import jeedom_import, models, protocol
 from .device import gateway_id
 from .const import (
-    CONF_DEVICES, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT, PLATFORMS,
-    SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION, SERVICE_LEARN,
-    SERVICE_SEND_RAW,
+    CONF_DEV_ID, CONF_DEVICES, CONF_KIND, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT,
+    KIND_REMOTE, PLATFORMS, SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION,
+    SERVICE_LEARN, SERVICE_SEND_RAW, SUBENTRY_TYPE_DEVICE,
 )
 from .gateway import EdisioGateway
 
@@ -37,6 +37,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     gateway = EdisioGateway(hass, entry)
     await gateway.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = gateway
+
+    # Declare les telecommandes (sous-entrees) : leurs trames sont routees vers
+    # les entites bouton, sans redeclencher de carte de decouverte.
+    gateway.async_set_known_remotes({
+        sub.data[CONF_DEV_ID]
+        for sub in entry.subentries.values()
+        if sub.subentry_type == SUBENTRY_TYPE_DEVICE
+        and sub.data.get(CONF_KIND) == KIND_REMOTE
+        and sub.data.get(CONF_DEV_ID)
+    })
 
     await _async_register_hub(hass, entry, gateway)
 

@@ -10,7 +10,10 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_DISCOVERY, SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS
+from .const import (
+    CONF_DEV_ID, CONF_KIND, CONF_NAME, DOMAIN, KIND_REMOTE, SIGNAL_DISCOVERY,
+    SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS, SUBENTRY_TYPE_DEVICE,
+)
 from .device import emitter_device_info, gateway_device_info
 from .gateway import EdisioGateway
 
@@ -27,6 +30,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         EdisioGatewayFramesSensor(gw, entry.entry_id),
         EdisioGatewayLastFrameSensor(gw, entry.entry_id),
     ])
+
+    # Batterie des telecommandes (sous-entrees)
+    for sub_id, sub in entry.subentries.items():
+        if sub.subentry_type == SUBENTRY_TYPE_DEVICE \
+                and sub.data.get(CONF_KIND) == KIND_REMOTE:
+            async_add_entities(
+                [EdisioBatterySensor(entry.entry_id, sub.data[CONF_DEV_ID],
+                                     sub.data.get(CONF_NAME))],
+                config_subentry_id=sub_id,
+            )
 
     @callback
     def _discovered(data: dict) -> None:

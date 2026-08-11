@@ -73,7 +73,7 @@
       "entry_type": "Appareil",
       "initiate_flow": {
         "user": "Ajouter un appareil",
-        "reconfigure": "Modifier l'appareil"
+        "reconfigure": "Reconfigurer"
       },
       "step": {
         "user": {
@@ -84,14 +84,28 @@
           }
         },
         "pair": {
-          "title": "Détecter un émetteur",
-          "description": "Le mode inclusion est activé sur la passerelle Edisio.\n\nAppuyez maintenant sur un bouton de votre télécommande / interrupteur Edisio, puis cliquez sur **Valider**."
-        },
-        "pair_name": {
-          "title": "Nommer l'émetteur",
-          "description": "Émetteur détecté : **{id}** (capacités : {kinds}).\n\nDonnez-lui un nom.",
+          "title": "Nouvelle télécommande",
+          "description": "Donnez un nom à la télécommande. Vous apprendrez ensuite ses boutons un par un.",
           "data": {
-            "name": "Nom de l'appareil"
+            "name": "Nom de la télécommande"
+          }
+        },
+        "pair_button": {
+          "title": "Bouton {n}",
+          "description": "Quel bouton allez-vous apprendre ? Donnez-lui un nom (ex. Centre, Haut, Bas…).",
+          "data": {
+            "name": "Nom du bouton"
+          }
+        },
+        "pair_capture": {
+          "title": "Appuyez sur le bouton",
+          "description": "Le mode inclusion est activé.\n\nAppuyez maintenant sur le bouton **{button}** de la télécommande, puis cliquez sur **Valider**."
+        },
+        "pair_next": {
+          "title": "Bouton mémorisé",
+          "menu_options": {
+            "add_another": "Ajouter un autre bouton",
+            "finish": "Terminer"
           }
         },
         "receiver": {
@@ -114,13 +128,25 @@
             "name": "Nom",
             "edisio_id": "ID Edisio"
           }
+        },
+        "add_button": {
+          "title": "Ajouter un bouton",
+          "description": "Donnez un nom au nouveau bouton (ex. Centre, Haut…).",
+          "data": {
+            "name": "Nom du bouton"
+          }
+        },
+        "add_button_capture": {
+          "title": "Appuyez sur le bouton",
+          "description": "Le mode inclusion est activé.\n\nAppuyez sur le bouton **{button}** de la télécommande, puis cliquez sur **Valider**."
         }
       },
       "error": {
-        "no_press": "Aucun appui détecté. Appuyez sur un bouton de la télécommande, puis validez."
+        "no_press": "Aucun appui détecté. Appuyez sur le bouton, puis validez.",
+        "wrong_remote": "Cet appui vient d'une autre télécommande. Appuyez sur un bouton de la même télécommande.",
+        "already_added": "Ce bouton est déjà mémorisé. Appuyez sur un autre bouton."
       },
       "abort": {
-        "emitter_added": "Émetteur Edisio {id} ajouté.",
         "no_hub": "Passerelle Edisio introuvable."
       }
     }

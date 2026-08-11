@@ -36,8 +36,15 @@ aucune dépendance cloud.
 
 ## Fonctionnement
 
-### Modules émetteurs (télécommandes, sondes) — découverte automatique
-Dès qu'une trame est reçue, l'appareil est créé automatiquement :
+### Télécommandes multi-boutons (1 à 5 boutons, boutons muraux)
+**Ajouter un appareil → Détecter une télécommande** : nommez la télécommande, puis
+apprenez ses boutons **un par un** (nommez le bouton → l'inclusion s'active →
+appuyez → mémorisé → « Ajouter un autre bouton ? »). Vous obtenez **un seul
+appareil** regroupant **une entité `event` par bouton** (+ batterie). Pour en
+ajouter un plus tard : fiche de l'appareil → **Reconfigurer**.
+
+### Autres émetteurs (sondes, contacts) — découverte automatique
+En **mode inclusion**, une trame reçue fait apparaître une carte de découverte :
 - `event.edisio_<id>_telecommande` : appui des boutons (types `on/off/toggle/up/down/stop`)
   → idéal pour déclencher des automatisations.
 - `sensor.edisio_<id>_batterie` et `…_temperature` (sondes MID 08).
