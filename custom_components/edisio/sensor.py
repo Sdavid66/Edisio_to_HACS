@@ -35,12 +35,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
         new = []
         has_batt = "battery" in kinds or data.get("battery") is not None
         has_temp = "temperature" in kinds or "temperature" in data
+        name = data.get("name")
         if has_batt and f"{dev_id}_battery" not in seen:
             seen.add(f"{dev_id}_battery")
-            new.append(EdisioBatterySensor(entry.entry_id, dev_id))
+            new.append(EdisioBatterySensor(entry.entry_id, dev_id, name))
         if has_temp and f"{dev_id}_temp" not in seen:
             seen.add(f"{dev_id}_temp")
-            new.append(EdisioTemperatureSensor(entry.entry_id, dev_id))
+            new.append(EdisioTemperatureSensor(entry.entry_id, dev_id, name))
         if new:
             async_add_entities(new)
 
@@ -52,9 +53,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
 class _Base(SensorEntity):
     _attr_should_poll = False
 
-    def __init__(self, entry_id: str, dev_id: str):
+    def __init__(self, entry_id: str, dev_id: str, name: str | None = None):
         self._dev_id = dev_id
-        self._attr_device_info = emitter_device_info(entry_id, dev_id)
+        self._attr_device_info = emitter_device_info(entry_id, dev_id, name)
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(
@@ -74,8 +75,8 @@ class EdisioBatterySensor(_Base):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_entity_registry_enabled_default = True
 
-    def __init__(self, entry_id: str, dev_id: str):
-        super().__init__(entry_id, dev_id)
+    def __init__(self, entry_id: str, dev_id: str, name: str | None = None):
+        super().__init__(entry_id, dev_id, name)
         self._attr_name = f"Edisio {dev_id} batterie"
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_battery"
 
@@ -91,8 +92,8 @@ class EdisioTemperatureSensor(_Base):
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, entry_id: str, dev_id: str):
-        super().__init__(entry_id, dev_id)
+    def __init__(self, entry_id: str, dev_id: str, name: str | None = None):
+        super().__init__(entry_id, dev_id, name)
         self._attr_name = f"Edisio {dev_id} temperature"
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_temperature"
 

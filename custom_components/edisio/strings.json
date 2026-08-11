@@ -17,7 +17,10 @@
       },
       "discovery_confirm": {
         "title": "Emetteur Edisio detecte",
-        "description": "Un nouvel emetteur Edisio (telecommande, bouton, sonde) a ete detecte :\n\n**ID {id}** - capacites : {kinds}\n\nValidez pour l'ajouter. Ses entites (bouton, etat, batterie/temperature) seront creees et rattachees a la passerelle."
+        "description": "Un nouvel emetteur Edisio (telecommande, bouton, sonde) a ete detecte :\n\n**ID {id}** - capacites : {kinds}\n\nDonnez-lui un nom, puis validez pour l'ajouter. Ses entites (bouton, etat, batterie/temperature) seront creees et rattachees a la passerelle.",
+        "data": {
+          "name": "Nom de l'appareil"
+        }
       }
     },
     "flow_title": "{name}",

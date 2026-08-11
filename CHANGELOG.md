@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0
+- **Nommer l'émetteur directement à la découverte** : la carte « Émetteur Edisio
+  détecté » propose désormais un champ **Nom de l'appareil** (pré-rempli
+  `Edisio <id>`). Le nom choisi est appliqué à l'appareil dès sa création et
+  **mémorisé** (persistant au redémarrage). Renommable ensuite dans l'UI comme
+  n'importe quel appareil.
+- Le nom est stocké dans le *store* des émetteurs (schéma rétrocompatible : les
+  installations existantes sans nom continuent de fonctionner) et propagé à
+  toutes les entités de l'émetteur (bouton, état, batterie, température).
+
 ## 1.5.0
 - **Découverte des émetteurs par cartes (comme ZHA/Z-Wave)** : en mode inclusion,
   appuyer sur un bouton/télécommande Edisio inconnu fait apparaître une **carte
