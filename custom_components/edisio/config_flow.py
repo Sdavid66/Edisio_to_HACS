@@ -146,17 +146,73 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
-    """Ajout/reconfiguration d'un recepteur pilotable en tant que sous-entree."""
+    """Assistant « Ajouter un appareil » : detection d'emetteur ou ajout de recepteur."""
 
     _model: str | None = None
+    _pending: dict | None = None
+
+    def _gateway(self):
+        entry = self._get_entry()
+        return self.hass.data.get(DOMAIN, {}).get(entry.entry_id) if entry else None
 
     async def async_step_user(self, user_input=None):
-        """Etape 1 : choisir le modele reel (EMV-400, EDR-D4, …)."""
+        """Menu : detecter un emetteur (bouton/telecommande) ou ajouter un recepteur."""
+        return self.async_show_menu(step_id="user", menu_options=["pair", "receiver"])
+
+    # ---------------------------------------- emetteur : inclusion + appui bouton
+    async def async_step_pair(self, user_input=None):
+        """Active l'inclusion sur la passerelle et attend un appui bouton."""
+        gateway = self._gateway()
+        if gateway is None:
+            return self.async_abort(reason="no_hub")
+        if user_input is None:
+            # 1re presentation : on ouvre la fenetre d'inclusion (capture)
+            gateway.async_begin_capture()
+            return self.async_show_form(step_id="pair", data_schema=vol.Schema({}))
+        pending = gateway.take_pending_emitter()
+        if not pending:
+            # Aucun appui detecte : on redemande (l'inclusion reste active)
+            return self.async_show_form(
+                step_id="pair", data_schema=vol.Schema({}),
+                errors={"base": "no_press"},
+            )
+        self._pending = pending
+        return await self.async_step_pair_name()
+
+    async def async_step_pair_name(self, user_input=None):
+        """Nomme l'emetteur detecte et l'ajoute."""
+        gateway = self._gateway()
+        if user_input is not None:
+            name = (user_input.get(CONF_NAME) or "").strip() or None
+            if gateway is not None:
+                await gateway.async_accept_emitter(
+                    self._pending["id"], self._pending["kinds"], name
+                )
+                gateway.async_end_capture()
+            return self.async_abort(
+                reason="emitter_added",
+                description_placeholders={"id": self._pending["id"]},
+            )
+        return self.async_show_form(
+            step_id="pair_name",
+            data_schema=vol.Schema({
+                vol.Optional(CONF_NAME,
+                             default=f"Edisio {self._pending['id']}"): str,
+            }),
+            description_placeholders={
+                "id": self._pending["id"],
+                "kinds": ", ".join(self._pending["kinds"]) or "—",
+            },
+        )
+
+    # ---------------------------------------- recepteur : ajout par modele
+    async def async_step_receiver(self, user_input=None):
+        """Choisir le modele reel (EMV-400, EDR-D4, …)."""
         if user_input is not None:
             self._model = user_input[CONF_MODEL]
             return await self.async_step_configure()
         return self.async_show_form(
-            step_id="user",
+            step_id="receiver",
             data_schema=vol.Schema(
                 {vol.Required(CONF_MODEL): vol.In(models.choices())}
             ),
