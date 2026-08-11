@@ -208,15 +208,16 @@ class EdisioGateway:
             return
 
         kinds = classify(decoded)
-        known = dev_id in self.accepted
 
+        # Assistant « Ajouter un appareil » : on capture le premier appui recu,
+        # que l'emetteur soit deja connu ou non (pas de carte pendant la capture).
+        if self._capturing:
+            self._pending_emitter = {"id": dev_id, "kinds": sorted(kinds)}
+            _LOGGER.info("Capture : emetteur %s detecte %s", dev_id, sorted(kinds))
+            return
+
+        known = dev_id in self.accepted
         if not known:
-            if self._capturing:
-                # Assistant « Ajouter un appareil » en cours : on bufferise le
-                # premier emetteur detecte (pas de carte pendant la capture).
-                self._pending_emitter = {"id": dev_id, "kinds": sorted(kinds)}
-                _LOGGER.info("Capture : emetteur %s detecte %s", dev_id, kinds)
-                return
             if not self.inclusion:
                 _LOGGER.debug("Emetteur %s ignore (hors mode inclusion)", dev_id)
                 return

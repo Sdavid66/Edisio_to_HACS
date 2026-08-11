@@ -165,19 +165,21 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
         gateway = self._gateway()
         if gateway is None:
             return self.async_abort(reason="no_hub")
-        if user_input is None:
-            # 1re presentation : on ouvre la fenetre d'inclusion (capture)
-            gateway.async_begin_capture()
-            return self.async_show_form(step_id="pair", data_schema=vol.Schema({}))
-        pending = gateway.take_pending_emitter()
-        if not pending:
-            # Aucun appui detecte : on redemande (l'inclusion reste active)
-            return self.async_show_form(
-                step_id="pair", data_schema=vol.Schema({}),
-                errors={"base": "no_press"},
-            )
-        self._pending = pending
-        return await self.async_step_pair_name()
+
+        errors = None
+        if user_input is not None:
+            pending = gateway.take_pending_emitter()
+            if pending:
+                self._pending = pending
+                return await self.async_step_pair_name()
+            errors = {"base": "no_press"}
+
+        # (Re)arme la capture a chaque affichage : la fenetre d'inclusion reste
+        # ouverte tant que l'utilisateur n'a pas valide un appui.
+        gateway.async_begin_capture()
+        return self.async_show_form(
+            step_id="pair", data_schema=vol.Schema({}), errors=errors,
+        )
 
     async def async_step_pair_name(self, user_input=None):
         """Nomme l'emetteur detecte et l'ajoute."""
