@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from typing import Callable
 
@@ -14,10 +15,11 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
-from . import protocol
+from . import protocol, rfplayer
 from .const import (
-    CONF_BANNED, CONF_DISCOVERED, DOMAIN, EVENT_TYPES, INCLUSION_TIMEOUT,
-    KNOWN_USB_IDS, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
+    CONF_BANNED, CONF_DISCOVERED, CONF_DONGLE, DOMAIN, DONGLE_EDISIO,
+    DONGLE_RFPLAYER, EVENT_TYPES, INCLUSION_TIMEOUT, KNOWN_USB_IDS,
+    RFPLAYER_BAUDRATE, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
     SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
 )
 
@@ -78,6 +80,33 @@ class _EdisioProtocol(asyncio.Protocol):
         self._on_lost()
 
 
+class _RFPlayerProtocol(asyncio.Protocol):
+    """Bufferise le flux RFPlayer et le decoupe en lignes (packets ZIA)."""
+
+    def __init__(self, on_line, on_lost):
+        self._on_line = on_line
+        self._on_lost = on_lost
+        self._buf = ""
+        self.transport = None
+
+    def connection_made(self, transport):
+        self.transport = transport
+        _LOGGER.debug("Connexion serie RFPlayer etablie")
+
+    def data_received(self, data: bytes) -> None:
+        self._buf += data.decode(errors="replace")
+        while "\n" in self._buf:
+            line, self._buf = self._buf.split("\n", 1)
+            line = line.strip("\0 \t\r")
+            if line:
+                self._on_line(line)
+
+    def connection_lost(self, exc):
+        _LOGGER.warning("Connexion serie RFPlayer perdue : %s", exc)
+        self.transport = None
+        self._on_lost()
+
+
 class EdisioGateway:
     """Liaison serie + dispatch des trames + gestion inclusion/exclusion."""
 
@@ -85,6 +114,7 @@ class EdisioGateway:
         self.hass = hass
         self.entry = entry
         self.port = entry.data["port"]
+        self.dongle = entry.data.get(CONF_DONGLE, DONGLE_EDISIO)
         # etat accumule (hors config) persiste dans un Store dedie
         self._store: Store = Store(hass, 1, f"edisio_{entry.entry_id}")
         self.accepted: dict[str, set[str]] = {}   # {id: set(kinds)}
@@ -147,20 +177,55 @@ class EdisioGateway:
             return
 
     async def _connect(self) -> None:
+        rfplayer_mode = self.dongle == DONGLE_RFPLAYER
+        baudrate = RFPLAYER_BAUDRATE if rfplayer_mode else SERIAL_BAUDRATE
+        if rfplayer_mode:
+            def factory():
+                return _RFPlayerProtocol(self._handle_rfplayer_line, self._handle_lost)
+        else:
+            def factory():
+                return _EdisioProtocol(self._handle_frame, self._handle_lost)
         try:
             self._transport, self._protocol = await serial_asyncio.create_serial_connection(
-                self.hass.loop,
-                lambda: _EdisioProtocol(self._handle_frame, self._handle_lost),
-                self.port, baudrate=SERIAL_BAUDRATE,
+                self.hass.loop, factory, self.port, baudrate=baudrate,
             )
-            _LOGGER.info("Passerelle Edisio demarree sur %s", self.port)
+            _LOGGER.info("Passerelle Edisio demarree sur %s (%s, %d bauds)",
+                         self.port, self.dongle, baudrate)
             self.connected = True
             self._notify_status()
+            if rfplayer_mode:
+                for command in rfplayer.INIT_COMMANDS:
+                    self._write_line(command)
         except Exception as err:  # noqa: BLE001
             _LOGGER.error("Ouverture du port %s impossible : %s", self.port, err)
             self.connected = False
             self._notify_status()
             self._schedule_reconnect()
+
+    def _write_line(self, command: str) -> None:
+        """Envoie une commande ZIA au RFPlayer (prefixe « ZIA++ », fin « \\n\\r »)."""
+        if self._transport is None:
+            return
+        self._transport.write(f"ZIA++{command}\n\r".encode())
+        _LOGGER.debug("RFPlayer TX : ZIA++%s", command)
+
+    @callback
+    def _handle_rfplayer_line(self, line: str) -> None:
+        """Traite une ligne recue du RFPlayer (packet ZIA)."""
+        header, body = line[:5], line[5:]
+        if header != "ZIA33":
+            _LOGGER.debug("RFPlayer RX (ignore) : %s", line)
+            return
+        try:
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            _LOGGER.debug("RFPlayer : JSON invalide : %s", body)
+            return
+        decoded = rfplayer.parse_event(data)
+        if decoded is None:
+            return
+        self._mark_frame()
+        self._dispatch(decoded)
 
     @callback
     def _handle_lost(self):
@@ -196,13 +261,23 @@ class EdisioGateway:
 
     # -------------------------------------------------------------- reception
     @callback
-    def _handle_frame(self, frame: bytes) -> None:
-        decoded = protocol.decode(frame)
-        if decoded is None:
-            return
+    def _mark_frame(self) -> None:
         self.frames_received += 1
         self.last_frame_at = dt_util.utcnow()
         self._notify_status()
+
+    @callback
+    def _handle_frame(self, frame: bytes) -> None:
+        """Chemin dongle Edisio : decode la trame brute puis dispatch."""
+        decoded = protocol.decode(frame)
+        if decoded is None:
+            return
+        self._mark_frame()
+        self._dispatch(decoded)
+
+    @callback
+    def _dispatch(self, decoded: dict) -> None:
+        """Logique commune (Edisio brut ET RFPlayer) : banni/capture/connu/RX."""
         dev_id = decoded["id"]
         if dev_id in self.banned:
             _LOGGER.debug("Trame ignoree (banni) : %s", dev_id)
@@ -388,7 +463,26 @@ class EdisioGateway:
         return added
 
     # ---------------------------------------------------------------- emission
+    async def async_send_action(self, edisio_id: str, group: int, action: str,
+                                template: str | None, level: int | None = None) -> None:
+        """Emet une action : trame brute (Edisio) ou commande ZIA (RFPlayer)."""
+        if self.dongle == DONGLE_RFPLAYER:
+            command = rfplayer.build_command(action, edisio_id, group, level)
+            if command is None:
+                _LOGGER.warning("Action %s non traduisible en commande RFPlayer", action)
+                return
+            async with self._write_lock:
+                self._write_line(command)
+            return
+        if not template:
+            return
+        await self.async_send(protocol.render(template, edisio_id, group, level))
+
     async def async_send(self, frames: list[str]) -> None:
+        """Emission de trames Edisio brutes (dongle transparent uniquement)."""
+        if self.dongle == DONGLE_RFPLAYER:
+            _LOGGER.warning("Emission de trame brute ignoree : dongle RFPlayer")
+            return
         if self._transport is None:
             _LOGGER.warning("Envoi impossible : port serie ferme")
             return

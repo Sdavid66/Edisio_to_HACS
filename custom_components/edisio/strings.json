@@ -3,15 +3,17 @@
     "step": {
       "user": {
         "title": "Passerelle Edisio",
-        "description": "Choisissez le port serie du dongle USB Edisio.",
+        "description": "Choisissez le TYPE de dongle puis son port serie.\n\n⚠️ Le type doit correspondre a votre materiel : « Dongle Edisio » (adaptateur USB transparent) ou « GCE RFPlayer ». En cas de mauvais choix, la passerelle ne fonctionnera pas (protocole et debit differents).",
         "data": {
+          "dongle": "Type de dongle",
           "port": "Port serie"
         }
       },
       "reconfigure": {
-        "title": "Changer le port du dongle Edisio",
-        "description": "Selectionnez le nouveau port serie du dongle USB Edisio. Vos modules configures sont conserves.",
+        "title": "Changer le dongle / le port",
+        "description": "Selectionnez le type de dongle et son port serie. Vos modules configures sont conserves.\n\n⚠️ Le type doit correspondre a votre materiel, sinon la passerelle ne fonctionnera pas.",
         "data": {
+          "dongle": "Type de dongle",
           "port": "Port serie"
         }
       },

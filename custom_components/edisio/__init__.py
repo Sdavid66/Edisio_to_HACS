@@ -15,9 +15,9 @@ from homeassistant.loader import async_get_integration
 from . import jeedom_import, models, protocol
 from .device import gateway_id
 from .const import (
-    CONF_DEV_ID, CONF_DEVICES, CONF_KIND, CONF_PORT, DOMAIN, INCLUSION_TIMEOUT,
-    KIND_REMOTE, PLATFORMS, SERVICE_EXCLUDE, SERVICE_IMPORT, SERVICE_INCLUSION,
-    SERVICE_LEARN, SERVICE_SEND_RAW, SUBENTRY_TYPE_DEVICE,
+    CONF_DEV_ID, CONF_DEVICES, CONF_KIND, CONF_PORT, DOMAIN, DONGLE_RFPLAYER,
+    INCLUSION_TIMEOUT, KIND_REMOTE, PLATFORMS, SERVICE_EXCLUDE, SERVICE_IMPORT,
+    SERVICE_INCLUSION, SERVICE_LEARN, SERVICE_SEND_RAW, SUBENTRY_TYPE_DEVICE,
 )
 from .gateway import EdisioGateway
 
@@ -61,13 +61,18 @@ async def _async_register_hub(
 ) -> None:
     """Enregistre la passerelle comme appareil 'hub' (comme un coordinateur)."""
     integration = await async_get_integration(hass, DOMAIN)
-    model = gateway.dongle_description or "Dongle USB Edisio 868 MHz"
+    if gateway.dongle == DONGLE_RFPLAYER:
+        manufacturer = "GCE Electronics"
+        model = gateway.dongle_description or "RFPlayer RFP1000"
+    else:
+        manufacturer = "Edisio"
+        model = gateway.dongle_description or "Dongle USB Edisio 868 MHz"
     if gateway.dongle_vidpid:
         model = f"{model} ({gateway.dongle_vidpid})"
     dr.async_get(hass).async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={gateway_id(entry.entry_id)},
-        manufacturer="Edisio",
+        manufacturer=manufacturer,
         name=f"Passerelle Edisio ({gateway.port})",
         model=model,
         sw_version=str(integration.version) if integration.version else None,
