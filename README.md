@@ -1,6 +1,6 @@
 # Edisio pour Home Assistant
 
-**🇫🇷 Français** · [🇬🇧 English](README.en.md)
+**🇫🇷 Français** · [🇬🇧 English](https://github.com/Sdavid66/edisio_HA_v2/blob/main/README.en.md)
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![release](https://img.shields.io/github/v/release/Sdavid66/edisio_HA_v2)](https://github.com/Sdavid66/edisio_HA_v2/releases)
