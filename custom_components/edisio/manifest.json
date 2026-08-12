@@ -9,5 +9,5 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/Sdavid66/edisio_HA_v2/issues",
   "requirements": ["pyserial-asyncio-fast==0.16"],
-  "version": "1.9.0"
+  "version": "1.10.0"
 }

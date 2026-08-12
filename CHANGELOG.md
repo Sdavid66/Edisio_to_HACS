@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.0
+- **Choix du type de dongle** à l'ajout (et en reconfiguration) : **Dongle Edisio**
+  (adaptateur USB transparent, comportement historique) ou **GCE RFPlayer (RFP1000)**.
+  Un avertissement rappelle que le type doit correspondre au matériel, sinon la
+  passerelle ne fonctionne pas (protocole et débit différents).
+- **Backend RFPlayer** (nouveau `rfplayer.py`) : transport à **115200 bauds**,
+  init `ZIA++FORMAT JSON` + `FREQ H 868350`, émission de commandes ZIA
+  (`ON/OFF/TOGGLE/DIM … ID <id> EDISIO`) et réception des trames Edisio en JSON
+  (`ZIA33`, `protocolMeaning=EDISIO`) retraduites vers le même format interne —
+  toute la logique haute (entités, inclusion, sous-entrées) est réutilisée.
+- **Rétrocompatible** : les installations existantes n'ont pas de clef `dongle`
+  et restent en mode **Edisio** (débit 9600, trames brutes) — aucun changement.
+- ⚠️ Le backend RFPlayer est fonctionnel mais certains détails fins (code de
+  bouton multi-boutons, volets/variateurs, association) restent à **valider sur
+  matériel réel** ; le code est défensif et journalise (`custom_components.edisio: debug`).
+
 ## 1.9.0
 - **Télécommandes multi-boutons** (1 à 5 boutons, boutons muraux…). *Ajouter un
   appareil → Détecter une télécommande* :

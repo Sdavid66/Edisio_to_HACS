@@ -2,16 +2,18 @@
   "config": {
     "step": {
       "user": {
-        "title": "Passerelle Edisio",
-        "description": "Choisissez le port serie du dongle USB Edisio.",
+        "title": "Edisio gateway",
+        "description": "Choose the dongle TYPE then its serial port.\n\n⚠️ The type must match your hardware: “Edisio dongle” (transparent USB adapter) or “GCE RFPlayer”. A wrong choice means the gateway will not work (different protocol and baud rate).",
         "data": {
-          "port": "Port serie"
+          "dongle": "Dongle type",
+          "port": "Serial port"
         }
       },
       "reconfigure": {
-        "title": "Change the Edisio dongle port",
-        "description": "Select the new serial port of the Edisio USB dongle. Your configured modules are kept.",
+        "title": "Change the dongle / port",
+        "description": "Select the dongle type and its serial port. Your configured modules are kept.\n\n⚠️ The type must match your hardware, otherwise the gateway will not work.",
         "data": {
+          "dongle": "Dongle type",
           "port": "Serial port"
         }
       },
@@ -26,9 +28,17 @@
     "flow_title": "{name}",
     "abort": {
       "already_configured": "Ce port est deja configure.",
-      "reconfigure_successful": "Edisio dongle port updated.",
+      "reconfigure_successful": "Edisio gateway updated.",
       "device_added": "Edisio emitter {id} added.",
       "no_hub": "No Edisio gateway configured."
+    }
+  },
+  "selector": {
+    "dongle": {
+      "options": {
+        "edisio": "Edisio dongle (transparent USB, 868 MHz)",
+        "rfplayer": "GCE RFPlayer (RFP1000)"
+      }
     }
   },
   "options": {

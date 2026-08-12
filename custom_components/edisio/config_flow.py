@@ -12,14 +12,24 @@ from homeassistant.config_entries import (
     ConfigEntry, ConfigFlow, ConfigSubentryFlow, OptionsFlow,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.selector import FileSelector, FileSelectorConfig
+from homeassistant.helpers.selector import (
+    FileSelector, FileSelectorConfig, SelectSelector, SelectSelectorConfig,
+)
 
 from . import jeedom_import, models
 from .const import (
     CONF_BUTTONS, CONF_CHANNEL, CONF_CODE, CONF_DEV_ID, CONF_DEVICES,
-    CONF_EDISIO_ID, CONF_KIND, CONF_MODEL, CONF_NAME, CONF_PORT, DOMAIN,
-    KIND_REMOTE, KNOWN_USB_IDS, SUBENTRY_TYPE_DEVICE,
+    CONF_DONGLE, CONF_EDISIO_ID, CONF_KIND, CONF_MODEL, CONF_NAME, CONF_PORT,
+    DOMAIN, DONGLE_EDISIO, DONGLE_RFPLAYER, KIND_REMOTE, KNOWN_USB_IDS,
+    SUBENTRY_TYPE_DEVICE,
 )
+
+def _dongle_selector():
+    """Selecteur du type de dongle (Edisio transparent ou GCE RFPlayer)."""
+    return SelectSelector(SelectSelectorConfig(
+        options=[DONGLE_EDISIO, DONGLE_RFPLAYER],
+        translation_key="dongle",
+    ))
 
 CONF_FILE = "file"
 CONF_PATH = "path"
@@ -61,17 +71,21 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
         ports = await _async_serial_ports(self.hass)
         if user_input is not None:
             port = user_input[CONF_PORT].strip()
+            dongle = user_input.get(CONF_DONGLE, DONGLE_EDISIO)
             await self.async_set_unique_id(port)
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
                 title=f"Edisio ({port})",
-                data={CONF_PORT: port},
+                data={CONF_PORT: port, CONF_DONGLE: dongle},
                 options={CONF_DEVICES: []},
             )
-        selector = vol.In({**ports, "": "Saisie manuelle…"}) if ports else str
+        port_sel = vol.In({**ports, "": "Saisie manuelle…"}) if ports else str
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required(CONF_PORT): selector}),
+            data_schema=vol.Schema({
+                vol.Required(CONF_DONGLE, default=DONGLE_EDISIO): _dongle_selector(),
+                vol.Required(CONF_PORT): port_sel,
+            }),
         )
 
     async def async_step_integration_discovery(self, discovery_info):
@@ -112,12 +126,14 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
         """Changer le port serie du dongle sans perdre les modules configures."""
         entry = self._get_reconfigure_entry()
         ports = await _async_serial_ports(self.hass)
+        current_dongle = entry.data.get(CONF_DONGLE, DONGLE_EDISIO)
         if user_input is not None:
             port = user_input[CONF_PORT].strip()
+            dongle = user_input.get(CONF_DONGLE, current_dongle)
             return self.async_update_reload_and_abort(
                 entry,
                 title=f"Edisio ({port})",
-                data={**entry.data, CONF_PORT: port},
+                data={**entry.data, CONF_PORT: port, CONF_DONGLE: dongle},
             )
         current = entry.data.get(CONF_PORT, "")
         choices = dict(ports)
@@ -127,9 +143,10 @@ class EdisioConfigFlow(ConfigFlow, domain=DOMAIN):
         selector = vol.In({**choices, "": "Saisie manuelle…"}) if choices else str
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_PORT, default=current): selector}
-            ),
+            data_schema=vol.Schema({
+                vol.Required(CONF_DONGLE, default=current_dongle): _dongle_selector(),
+                vol.Required(CONF_PORT, default=current): selector,
+            }),
         )
 
     @classmethod

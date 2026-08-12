@@ -4,7 +4,7 @@ from __future__ import annotations
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from . import models, protocol
+from . import models
 from .const import (
     CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN,
     SUBENTRY_TYPE_DEVICE,
@@ -59,8 +59,8 @@ class EdisioReceiver(Entity):
         template = self._model["frames"].get(action)
         if not template:
             return
-        await self._gateway.async_send(
-            protocol.render(template, self._id, self._channel, slider)
+        await self._gateway.async_send_action(
+            self._id, self._channel, action, template, slider
         )
 
     @staticmethod

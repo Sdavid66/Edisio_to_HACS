@@ -41,9 +41,15 @@ DEFAULT_MID = {
 }
 
 # Liaison serie
-SERIAL_BAUDRATE = 9600
-# VID:PID des dongles USB Edisio connus (Prolific PL2303 / FTDI FT232)
+SERIAL_BAUDRATE = 9600            # dongle Edisio transparent (trames brutes)
+RFPLAYER_BAUDRATE = 115200        # passerelle GCE RFPlayer (API ZIA)
+# VID:PID des dongles USB connus (Prolific PL2303 / FTDI FT232 ; le RFPlayer est FT232R)
 KNOWN_USB_IDS = [("067B", "2303"), ("0403", "6001")]
+
+# Type de dongle (clef stockee dans entry.data ; defaut = edisio pour la retrocompat)
+CONF_DONGLE = "dongle"
+DONGLE_EDISIO = "edisio"          # dongle Edisio transparent (comportement historique)
+DONGLE_RFPLAYER = "rfplayer"      # passerelle GCE RFPlayer RFP1000
 
 MANUFACTURER = "Edisio"
 
