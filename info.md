@@ -1,5 +1,7 @@
 # Edisio pour Home Assistant
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
+
 Intégration **locale** (`local_push`) des modules domotiques Edisio via le dongle
 USB 868 MHz, portée depuis le plugin Jeedom.
 
