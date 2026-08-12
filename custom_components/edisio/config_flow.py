@@ -12,7 +12,9 @@ from homeassistant.config_entries import (
     ConfigEntry, ConfigFlow, ConfigSubentryFlow, OptionsFlow,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.selector import FileSelector, FileSelectorConfig
+from homeassistant.helpers.selector import (
+    FileSelector, FileSelectorConfig, SelectSelector, SelectSelectorConfig,
+)
 
 from . import jeedom_import, models
 from .const import (
@@ -24,10 +26,10 @@ from .const import (
 
 def _dongle_selector():
     """Selecteur du type de dongle (Edisio transparent ou GCE RFPlayer)."""
-    return vol.In({
-        DONGLE_EDISIO: "Dongle Edisio (USB 868 MHz, transparent)",
-        DONGLE_RFPLAYER: "GCE RFPlayer (RFP1000)",
-    })
+    return SelectSelector(SelectSelectorConfig(
+        options=[DONGLE_EDISIO, DONGLE_RFPLAYER],
+        translation_key="dongle",
+    ))
 
 CONF_FILE = "file"
 CONF_PATH = "path"

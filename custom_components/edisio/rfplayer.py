@@ -54,15 +54,18 @@ def build_command(action: str, edisio_id: str, group: int,
         dev_dec = int(edisio_id, 16)
     except (TypeError, ValueError):
         return None
+    # Le canal (groupe) est passe en QUALIFIER pour adresser un canal precis
+    # d'un recepteur multi-canaux (a valider sur materiel reel).
+    qual = f" QUALIFIER {int(group)}"
     if action == "slider" and level is not None:
         lvl = max(0, min(100, int(level)))
         if lvl == 0:
-            return f"OFF ID {dev_dec} EDISIO"
-        return f"DIM ID {dev_dec} EDISIO %{lvl}"
+            return f"OFF ID {dev_dec} EDISIO{qual}"
+        return f"DIM ID {dev_dec} EDISIO %{lvl}{qual}"
     zia = _ACTION_ZIA.get(action)
     if not zia:
         return None
-    return f"{zia} ID {dev_dec} EDISIO"
+    return f"{zia} ID {dev_dec} EDISIO{qual}"
 
 
 def _battery_pct(infos: dict) -> int | None:
@@ -85,11 +88,15 @@ def parse_event(data: dict) -> dict | None:
     """
     if not isinstance(data, dict):
         return None
-    frame = data.get("frame") or {}
-    header = frame.get("header") or {}
-    if header.get("protocolMeaning") != "EDISIO":
+    frame = data.get("frame")
+    if not isinstance(frame, dict):
         return None
-    infos = frame.get("infos") or {}
+    header = frame.get("header")
+    if not isinstance(header, dict) or header.get("protocolMeaning") != "EDISIO":
+        return None
+    infos = frame.get("infos")
+    if not isinstance(infos, dict):
+        return None
     raw_id = infos.get("id")
     if raw_id in (None, ""):
         return None

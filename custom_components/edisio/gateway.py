@@ -100,6 +100,9 @@ class _RFPlayerProtocol(asyncio.Protocol):
             line = line.strip("\0 \t\r")
             if line:
                 self._on_line(line)
+        # Garde-fou : evite une croissance illimitee du buffer sur lien degrade.
+        if len(self._buf) > 8192:
+            self._buf = self._buf[-256:]
 
     def connection_lost(self, exc):
         _LOGGER.warning("Connexion serie RFPlayer perdue : %s", exc)
@@ -205,6 +208,7 @@ class EdisioGateway:
     def _write_line(self, command: str) -> None:
         """Envoie une commande ZIA au RFPlayer (prefixe « ZIA++ », fin « \\n\\r »)."""
         if self._transport is None:
+            _LOGGER.warning("RFPlayer : envoi impossible (port ferme) : %s", command)
             return
         self._transport.write(f"ZIA++{command}\n\r".encode())
         _LOGGER.debug("RFPlayer TX : ZIA++%s", command)
@@ -218,10 +222,10 @@ class EdisioGateway:
             return
         try:
             data = json.loads(body)
-        except json.JSONDecodeError:
-            _LOGGER.debug("RFPlayer : JSON invalide : %s", body)
+            decoded = rfplayer.parse_event(data)
+        except (json.JSONDecodeError, ValueError, TypeError, AttributeError) as err:
+            _LOGGER.debug("RFPlayer : trame ignoree (%s) : %s", err, body)
             return
-        decoded = rfplayer.parse_event(data)
         if decoded is None:
             return
         self._mark_frame()

@@ -28,9 +28,17 @@
     "flow_title": "{name}",
     "abort": {
       "already_configured": "Ce port est deja configure.",
-      "reconfigure_successful": "Port du dongle Edisio mis a jour.",
+      "reconfigure_successful": "Passerelle Edisio mise a jour.",
       "device_added": "Emetteur Edisio {id} ajoute.",
       "no_hub": "Aucune passerelle Edisio configuree."
+    }
+  },
+  "selector": {
+    "dongle": {
+      "options": {
+        "edisio": "Dongle Edisio (USB 868 MHz, transparent)",
+        "rfplayer": "GCE RFPlayer (RFP1000)"
+      }
     }
   },
   "options": {
