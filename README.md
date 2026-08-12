@@ -1,9 +1,13 @@
 # Edisio pour Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 > Intégration **custom** Home Assistant pour la domotique **Edisio** (dongle USB 868 MHz),
 > portée depuis le plugin Jeedom. 100 % locale, sans cloud.
+
+> ☕ Ce projet vous est utile ? Vous pouvez **[m'offrir un café](https://buymeacoffee.com/sdavid66)**
+> pour soutenir son développement — merci !
 
 ## Installation via HACS (recommandé)
 
@@ -188,6 +192,13 @@ Trame (≥ 16 octets), 9600 8N1 :
 - La correspondance modèle → type est volontairement générique ; ajustez le
   `group`/type lors de l'ajout d'un module.
 - Testé en simulation du protocole ; une validation sur dongle réel est recommandée.
+
+## Soutenir le projet ☕
+Ce plugin est gratuit et développé sur mon temps libre. S'il vous rend service,
+vous pouvez **[m'offrir un café](https://buymeacoffee.com/sdavid66)** — chaque
+petit soutien est très apprécié et motive les prochaines améliorations. Merci ! 🙏
+
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 ## Licence
 GPL-2.0 (cohérente avec le plugin Jeedom d'origine).
