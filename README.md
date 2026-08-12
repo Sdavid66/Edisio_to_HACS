@@ -1,6 +1,9 @@
 # Edisio pour Home Assistant
 
+**🇫🇷 Français** · [🇬🇧 English](README.en.md)
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![release](https://img.shields.io/github/v/release/Sdavid66/edisio_HA_v2)](https://github.com/Sdavid66/edisio_HA_v2/releases)
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 > Intégration **custom** Home Assistant pour la domotique **Edisio** (dongle USB 868 MHz),
@@ -9,16 +12,20 @@
 > ☕ Ce projet vous est utile ? Vous pouvez **[m'offrir un café](https://buymeacoffee.com/sdavid66)**
 > pour soutenir son développement — merci !
 
+> ℹ️ **Pas encore dans le magasin HACS par défaut.** Installez l'intégration en
+> **dépôt personnalisé** (voir ci-dessous). La publication dans le magasin
+> officiel se fera plus tard.
+
 ## Installation via HACS (recommandé)
 
 1. Assurez-vous que [HACS](https://hacs.xyz) est installé.
 2. Dans Home Assistant : **HACS → menu ⋮ (en haut à droite) → Dépôts personnalisés**.
-3. Collez l'URL de votre dépôt GitHub, ex. `https://github.com/Sdavid66/edisio_HA_v2`,
+3. Collez l'URL du dépôt GitHub `https://github.com/Sdavid66/edisio_HA_v2`,
    choisissez la catégorie **Integration**, puis **Ajouter**.
 4. Ouvrez la fiche **Edisio** qui apparaît → **Télécharger**.
 5. **Redémarrez Home Assistant**.
 6. **Paramètres → Appareils et services → Ajouter une intégration → Edisio**,
-   puis sélectionnez le port série du dongle.
+   puis choisissez le **type de dongle** et son **port série**.
 
 ### Installation manuelle (sans HACS)
 Copiez le dossier `custom_components/edisio` dans le `config/custom_components/`
@@ -33,9 +40,34 @@ aucune dépendance cloud.
 > a été validé bit à bit contre les templates d'origine (voir `tests/test_protocol.py`).
 
 ## Matériel
-- Dongle USB Edisio (Prolific PL2303 `067B:2303` ou FTDI FT232 `0403:6001`), 9600 bauds.
+- **Dongle USB Edisio** (Prolific PL2303 `067B:2303` ou FTDI FT232 `0403:6001`), 9600 bauds.
+- **GCE RFPlayer (RFP1000)** — passerelle radio 433/868 MHz, en **version de test** (voir plus bas).
 - Modules Edisio : interrupteurs/télécommandes (émetteurs) et récepteurs
   (micro-modules, rail DIN, volet EMV-400…).
+
+## Dongle / passerelle : Edisio ou GCE RFPlayer
+
+À l'ajout de l'intégration (et via **Reconfigurer**), choisissez le **type de dongle** :
+
+| Type | Description | État |
+|------|-------------|------|
+| **Dongle Edisio** | Adaptateur USB transparent (PL2303/FT232), 9600 bauds, trames Edisio brutes. | ✅ Stable |
+| **GCE RFPlayer (RFP1000)** | Passerelle intelligente, API ZIA à 115200 bauds, protocole Edisio 868 MHz. | 🧪 **Version de test** |
+
+> ⚠️ **Le type doit correspondre à votre matériel.** En cas de mauvais choix,
+> la passerelle ne fonctionnera pas (protocole et débit différents).
+
+> 🧪 **Support RFPlayer en version de test.** L'émission/réception de base
+> (ON/OFF/TOGGLE, batterie, température) est implémentée, mais certains détails
+> fins (canal des récepteurs multi-voies, volets/variateurs, association) restent
+> **à valider sur matériel réel**. En cas de souci, activez les logs de debug et
+> ouvrez une *issue* :
+> ```yaml
+> logger:
+>   logs:
+>     custom_components.edisio: debug
+> ```
+> (cherchez les lignes `RFPlayer TX`/`RFPlayer RX`).
 
 
 ## Fonctionnement
@@ -121,11 +153,6 @@ Si vous veniez du **plugin Edisio de Jeedom**, vous pouvez réimporter vos
 - *Alternative* : si le fichier est déjà sur le serveur HA (ex. `/config` via
   l'add-on *Samba* / *File editor*), indiquez plutôt son chemin. Le service
   `edisio.import_jeedom` (basé sur un chemin serveur) reste aussi disponible.
-
-<!-- Capture de l'étape d'import : remplacez l'image ci-dessous par un vrai
-     screenshot/GIF de votre HA (déposez-le dans docs/import_jeedom.png).
-     Voir docs/README.md. -->
-![Étape « Importer depuis Jeedom » dans Home Assistant](docs/import_jeedom.png)
 
 L'import reconstruit **un appareil par groupe Edisio réellement utilisé**, en
 reprenant le **nom métier** de vos commandes Jeedom (`ON_Garage`/`OFF_Garage`
