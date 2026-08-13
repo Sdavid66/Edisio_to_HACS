@@ -4,10 +4,10 @@
   "codeowners": ["@Sdavid66"],
   "config_flow": true,
   "dependencies": ["file_upload"],
-  "documentation": "https://github.com/Sdavid66/edisio_HA_v2",
+  "documentation": "https://github.com/Sdavid66/Edisio_to_HACS",
   "integration_type": "hub",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/Sdavid66/edisio_HA_v2/issues",
+  "issue_tracker": "https://github.com/Sdavid66/Edisio_to_HACS/issues",
   "requirements": ["pyserial-asyncio-fast==0.16"],
-  "version": "1.10.0"
+  "version": "1.10.1"
 }

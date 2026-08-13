@@ -1,7 +1,7 @@
 # Publier ce dépôt sur GitHub pour HACS
 
 HACS installe une intégration depuis un dépôt **GitHub public**. Ce dépôt est
-publié sur [`Sdavid66/edisio_HA_v2`](https://github.com/Sdavid66/edisio_HA_v2).
+publié sur [`Sdavid66/Edisio_to_HACS`](https://github.com/Sdavid66/Edisio_to_HACS).
 
 ## 1. Pousser les fichiers
 Depuis le dossier du projet :
@@ -10,7 +10,7 @@ git init
 git add .
 git commit -m "Edisio integration 1.0.0"
 git branch -M main
-git remote add origin https://github.com/Sdavid66/edisio_HA_v2.git
+git remote add origin https://github.com/Sdavid66/Edisio_to_HACS.git
 git push -u origin main
 ```
 
@@ -27,7 +27,7 @@ Puis sur GitHub : **Releases → Draft a new release → tag v1.0.0 → Publish*
 
 ## 3. Ajouter le dépôt dans HACS
 Dans Home Assistant : **HACS → ⋮ → Dépôts personnalisés** → collez
-`https://github.com/Sdavid66/edisio_HA_v2`, catégorie **Integration** → **Ajouter**,
+`https://github.com/Sdavid66/Edisio_to_HACS`, catégorie **Integration** → **Ajouter**,
 puis ouvrez la fiche *Edisio* et **Téléchargez**. Redémarrez Home Assistant.
 
 ## Vérification automatique
@@ -50,7 +50,7 @@ une démarche volontaire, à lancer le jour où vous le décidez.
 
 **Le jour où vous voulez publier**, une seule action à faire vous-même :
 1. Forkez [`hacs/default`](https://github.com/hacs/default).
-2. Dans le fichier **`integration`**, ajoutez la ligne `Sdavid66/edisio_HA_v2`
+2. Dans le fichier **`integration`**, ajoutez la ligne `Sdavid66/Edisio_to_HACS`
    **en respectant l'ordre alphabétique**.
 3. Ouvrez une **pull request** depuis votre fork (compte personnel, pas une
    organisation).

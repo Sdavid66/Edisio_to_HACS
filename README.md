@@ -1,9 +1,9 @@
 # Edisio pour Home Assistant
 
-**🇫🇷 Français** · [🇬🇧 English](https://github.com/Sdavid66/edisio_HA_v2/blob/main/README.en.md)
+**🇫🇷 Français** · [🇬🇧 English](https://github.com/Sdavid66/Edisio_to_HACS/blob/main/README.en.md)
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![release](https://img.shields.io/github/v/release/Sdavid66/edisio_HA_v2)](https://github.com/Sdavid66/edisio_HA_v2/releases)
+[![release](https://img.shields.io/github/v/release/Sdavid66/Edisio_to_HACS)](https://github.com/Sdavid66/Edisio_to_HACS/releases)
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 > Intégration **custom** Home Assistant pour la domotique **Edisio** (dongle USB 868 MHz),
@@ -20,7 +20,7 @@
 
 1. Assurez-vous que [HACS](https://hacs.xyz) est installé.
 2. Dans Home Assistant : **HACS → menu ⋮ (en haut à droite) → Dépôts personnalisés**.
-3. Collez l'URL du dépôt GitHub `https://github.com/Sdavid66/edisio_HA_v2`,
+3. Collez l'URL du dépôt GitHub `https://github.com/Sdavid66/Edisio_to_HACS`,
    choisissez la catégorie **Integration**, puis **Ajouter**.
 4. Ouvrez la fiche **Edisio** qui apparaît → **Télécharger**.
 5. **Redémarrez Home Assistant**.

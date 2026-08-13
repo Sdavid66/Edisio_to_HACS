@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.1
+- **Renommage du dépôt** `edisio_HA_v2` → **`Edisio_to_HACS`** : liens
+  `documentation` / `issue_tracker` du manifest, badges et documentation mis à jour.
+
 ## 1.10.0
 - **Choix du type de dongle** à l'ajout (et en reconfiguration) : **Dongle Edisio**
   (adaptateur USB transparent, comportement historique) ou **GCE RFPlayer (RFP1000)**.

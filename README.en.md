@@ -1,9 +1,9 @@
 # Edisio for Home Assistant
 
-[🇫🇷 Français](https://github.com/Sdavid66/edisio_HA_v2/blob/main/README.md) · **🇬🇧 English**
+[🇫🇷 Français](https://github.com/Sdavid66/Edisio_to_HACS/blob/main/README.md) · **🇬🇧 English**
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![release](https://img.shields.io/github/v/release/Sdavid66/edisio_HA_v2)](https://github.com/Sdavid66/edisio_HA_v2/releases)
+[![release](https://img.shields.io/github/v/release/Sdavid66/Edisio_to_HACS)](https://github.com/Sdavid66/Edisio_to_HACS/releases)
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support%20the%20project-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 > **Custom** Home Assistant integration for **Edisio** home automation (868 MHz USB
@@ -19,7 +19,7 @@
 
 1. Make sure [HACS](https://hacs.xyz) is installed.
 2. In Home Assistant: **HACS → ⋮ menu (top right) → Custom repositories**.
-3. Paste the GitHub repository URL `https://github.com/Sdavid66/edisio_HA_v2`,
+3. Paste the GitHub repository URL `https://github.com/Sdavid66/Edisio_to_HACS`,
    choose the **Integration** category, then **Add**.
 4. Open the **Edisio** card that appears → **Download**.
 5. **Restart Home Assistant**.
