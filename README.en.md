@@ -105,11 +105,11 @@ the same paired ID.
 |------|------|-----------|----------|
 | 0C | Pilot-wire module | select | 1 |
 | 0F | Boiler module | select | 1 |
-| 103 | 1-button emitter (ON/OFF) | switch | 1 |
-| 108 | 2-button emitter (ON/OFF) | switch | 2 |
-| 109 | 3-button emitter (ON/OFF) | switch | 3 |
-| 110 | 4-button emitter (ON/OFF) | switch | 4 |
-| 111 | 5-button emitter (ON/OFF) | switch | 5 |
+| 103 | Edisio Diamond 1-button | switch | 1 |
+| 108 | Edisio Diamond 2-button | switch | 2 |
+| 109 | Edisio Diamond 3-button | switch | 3 |
+| 110 | Edisio Diamond 4-button | switch | 4 |
+| 111 | Edisio Diamond 5-button | switch | 5 |
 | 112 | EMV-400 micro-module (roller shutter) | cover | 1 |
 | 113 | EMV-400 micro-module (light) | light | 2 |
 | 114 | Light module | light | 1 |

@@ -27,8 +27,8 @@
     }
   },
   "103": {
-    "name": "Emetteur 1 bouton (ON/OFF)",
-    "category": "Actionneurs Jeedom",
+    "name": "Edisio Diamond 1 bouton",
+    "category": "Interrupteurs Edisio Diamond",
     "platform": "switch",
     "dimmable": false,
     "channels": [
@@ -40,8 +40,8 @@
     }
   },
   "108": {
-    "name": "Emetteur 2 boutons (ON/OFF)",
-    "category": "Actionneurs Jeedom",
+    "name": "Edisio Diamond 2 boutons",
+    "category": "Interrupteurs Edisio Diamond",
     "platform": "switch",
     "dimmable": false,
     "channels": [
@@ -54,8 +54,8 @@
     }
   },
   "109": {
-    "name": "Emetteur 3 boutons (ON/OFF)",
-    "category": "Actionneurs Jeedom",
+    "name": "Edisio Diamond 3 boutons",
+    "category": "Interrupteurs Edisio Diamond",
     "platform": "switch",
     "dimmable": false,
     "channels": [
@@ -69,8 +69,8 @@
     }
   },
   "110": {
-    "name": "Emetteur 4 boutons (ON/OFF)",
-    "category": "Actionneurs Jeedom",
+    "name": "Edisio Diamond 4 boutons",
+    "category": "Interrupteurs Edisio Diamond",
     "platform": "switch",
     "dimmable": false,
     "channels": [
@@ -85,8 +85,8 @@
     }
   },
   "111": {
-    "name": "Emetteur 5 boutons (ON/OFF)",
-    "category": "Actionneurs Jeedom",
+    "name": "Edisio Diamond 5 boutons",
+    "category": "Interrupteurs Edisio Diamond",
     "platform": "switch",
     "dimmable": false,
     "channels": [

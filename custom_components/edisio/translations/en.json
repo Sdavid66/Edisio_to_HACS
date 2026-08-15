@@ -27,7 +27,7 @@
     },
     "flow_title": "{name}",
     "abort": {
-      "already_configured": "Ce port est deja configure.",
+      "already_configured": "This port is already configured.",
       "reconfigure_successful": "Edisio gateway updated.",
       "device_added": "Edisio emitter {id} added.",
       "no_hub": "No Edisio gateway configured."
@@ -44,7 +44,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Modules Edisio",
+        "title": "Edisio modules",
         "menu_options": {
           "remove_device": "Remove a module",
           "import_jeedom": "Import from Jeedom"
