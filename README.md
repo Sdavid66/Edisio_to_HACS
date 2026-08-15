@@ -112,11 +112,11 @@ sous le même ID appairé.
 |------|-----|-----------|--------|
 | 0C | Module Fil Pilote | select | 1 |
 | 0F | Module Chaudière | select | 1 |
-| 103 | Emetteur 1 bouton (ON/OFF) | switch | 1 |
-| 108 | Emetteur 2 boutons (ON/OFF) | switch | 2 |
-| 109 | Emetteur 3 boutons (ON/OFF) | switch | 3 |
-| 110 | Emetteur 4 boutons (ON/OFF) | switch | 4 |
-| 111 | Emetteur 5 boutons (ON/OFF) | switch | 5 |
+| 103 | Edisio Diamond 1 bouton | switch | 1 |
+| 108 | Edisio Diamond 2 boutons | switch | 2 |
+| 109 | Edisio Diamond 3 boutons | switch | 3 |
+| 110 | Edisio Diamond 4 boutons | switch | 4 |
+| 111 | Edisio Diamond 5 boutons | switch | 5 |
 | 112 | Micro-module EMV-400 (Volet roulant) | cover | 1 |
 | 113 | Micro-module EMV-400 (Lumière) | light | 2 |
 | 114 | Module lumière | light | 1 |

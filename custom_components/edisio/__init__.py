@@ -15,9 +15,10 @@ from homeassistant.loader import async_get_integration
 from . import jeedom_import, models, protocol
 from .device import gateway_id
 from .const import (
-    CONF_DEV_ID, CONF_DEVICES, CONF_KIND, CONF_PORT, DOMAIN, DONGLE_RFPLAYER,
-    INCLUSION_TIMEOUT, KIND_REMOTE, PLATFORMS, SERVICE_EXCLUDE, SERVICE_IMPORT,
-    SERVICE_INCLUSION, SERVICE_LEARN, SERVICE_SEND_RAW, SUBENTRY_TYPE_DEVICE,
+    CONF_DEV_ID, CONF_DEVICES, CONF_EDISIO_ID, CONF_KIND, CONF_PORT, DOMAIN,
+    DONGLE_RFPLAYER, INCLUSION_TIMEOUT, KIND_REMOTE, PLATFORMS, SERVICE_EXCLUDE,
+    SERVICE_IMPORT, SERVICE_INCLUSION, SERVICE_LEARN, SERVICE_SEND_RAW,
+    SUBENTRY_TYPE_DEVICE,
 )
 from .gateway import EdisioGateway
 
@@ -95,18 +96,33 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_remove_config_entry_device(
     hass: HomeAssistant, entry: ConfigEntry, device_entry: dr.DeviceEntry
 ) -> bool:
-    """Autorise la suppression d'un emetteur decouvert depuis l'UI (= exclusion).
+    """Autorise la suppression d'un appareil depuis l'UI.
 
-    Les appareils emetteurs portent l'identifiant ``(edisio, emitter_<id>)`` ; on
-    en extrait l'``<id>`` reel pour l'oublier dans la passerelle.
+    - Emetteurs decouverts (identifiant ``(edisio, emitter_<id>)``) : oublies dans
+      la passerelle (= exclusion).
+    - Recepteurs « legacy » stockes dans les options (identifiant
+      ``(edisio, <edisio_id>)``) : retires des options, sinon les plateformes les
+      recreent au redemarrage et l'appareil « reapparait ».
     """
     gateway: EdisioGateway = hass.data[DOMAIN][entry.entry_id]
     for domain, ident in device_entry.identifiers:
-        if domain != DOMAIN or not ident.startswith("emitter_"):
+        if domain != DOMAIN:
             continue
-        dev_id = ident[len("emitter_"):]
-        if dev_id in gateway.accepted:
-            await gateway.async_forget(dev_id)
+        if ident.startswith("emitter_"):
+            dev_id = ident[len("emitter_"):]
+            if dev_id in gateway.accepted:
+                await gateway.async_forget(dev_id)
+        elif ident.startswith("gateway_"):
+            continue  # la passerelle (hub) n'est pas supprimable individuellement
+        else:
+            # Recepteur legacy (options) : le retirer pour que la suppression tienne.
+            edisio_id = ident
+            devices = entry.options.get(CONF_DEVICES, [])
+            kept = [d for d in devices if d.get(CONF_EDISIO_ID) != edisio_id]
+            if len(kept) != len(devices):
+                hass.config_entries.async_update_entry(
+                    entry, options={**entry.options, CONF_DEVICES: kept}
+                )
     return True
 
 

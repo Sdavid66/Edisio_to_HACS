@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.2
+- **Interrupteurs renommés « Edisio Diamond »** : le catalogue ne mentionne plus
+  Jeedom. Les réfs 103/108/109/110/111 (ex-« Emetteur N boutons », catégorie
+  « Actionneurs Jeedom ») s'appellent désormais **Edisio Diamond N bouton(s)**,
+  catégorie **Interrupteurs Edisio Diamond**. (Cosmétique : les appareils déjà
+  ajoutés gardent leur configuration, seul le libellé du modèle change.)
+- **Traductions anglaises complétées** : chaînes restées en français dans
+  `en.json` corrigées (« Ce port est deja configure » → *This port is already
+  configured*, titre « Modules Edisio » → *Edisio modules*).
+- **Correctif suppression** : un récepteur **legacy** (stocké dans les options,
+  hors sous-entrée) supprimé depuis l'UI **réapparaissait au redémarrage** car les
+  plateformes le recréaient depuis les options. Il est désormais **retiré des
+  options** à la suppression, donc la suppression tient.
+
 ## 1.10.1
 - **Renommage du dépôt** `edisio_HA_v2` → **`Edisio_to_HACS`** : liens
   `documentation` / `issue_tracker` du manifest, badges et documentation mis à jour.
