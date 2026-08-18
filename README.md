@@ -72,8 +72,9 @@ aucune dépendance cloud.
 
 ## Fonctionnement
 
-### Télécommandes multi-boutons (1 à 5 boutons, boutons muraux)
-**Ajouter un appareil → Détecter une télécommande** : nommez la télécommande, puis
+### Télécommandes SMILE / Diamond (1 à 5 boutons)
+**Ajouter un appareil → Détecter une télécommande** → choisissez le type :
+**SMILE** (1 touche) ou **Diamond** (1 à 5 touches). Nommez la télécommande, puis
 apprenez ses boutons **un par un** (nommez le bouton → l'inclusion s'active →
 appuyez → mémorisé → « Ajouter un autre bouton ? »). Vous obtenez **un seul
 appareil** regroupant **une entité `event` par bouton** (+ batterie). Pour en
@@ -112,22 +113,22 @@ sous le même ID appairé.
 |------|-----|-----------|--------|
 | 0C | Module Fil Pilote | select | 1 |
 | 0F | Module Chaudière | select | 1 |
-| 103 | Edisio Diamond 1 bouton | switch | 1 |
-| 108 | Edisio Diamond 2 boutons | switch | 2 |
-| 109 | Edisio Diamond 3 boutons | switch | 3 |
-| 110 | Edisio Diamond 4 boutons | switch | 4 |
-| 111 | Edisio Diamond 5 boutons | switch | 5 |
 | 112 | Micro-module EMV-400 (Volet roulant) | cover | 1 |
 | 113 | Micro-module EMV-400 (Lumière) | light | 2 |
 | 114 | Module lumière | light | 1 |
 | 115 | Module volet roulant | cover | 1 |
 | 116 | Micro-module EMSD-300A | light | 1 |
 | 119 | EDR-D4 (ON/OFF/Intensité) | light (variateur) | 4 |
-| 120 | EDR-B4 (ON/OFF) | switch | 4 |
-| 120C | EDR-B4 (Volet/Store) | cover | 4 |
+| EDRB4 | EDR-B4 (**fonction par voie** : ON/OFF ou Volet) | switch **et/ou** cover | 4 |
 
-Les émetteurs (télécommandes, interrupteurs, sondes) ne figurent pas ici : ils sont
-**découverts automatiquement** à la réception et exposés en `event`/`sensor`/`binary_sensor`.
+> **EDR-B4 — fonction par voie.** À l'ajout, choisissez pour **chacune des 4 voies**
+> « Interrupteur (ON/OFF) » ou « Volet / Store ». Modifiable ensuite via la fiche de
+> l'appareil → **Reconfigurer**. (Les anciens modèles tout-ON/OFF et tout-Volet
+> restent pris en charge pour les installations existantes.)
+
+Les **télécommandes SMILE / Diamond** ne sont pas des récepteurs : elles s'apprennent
+via **Détecter une télécommande** (voir plus haut). Les autres émetteurs (sondes,
+contacts) sont **découverts automatiquement** et exposés en `event`/`sensor`/`binary_sensor`.
 
 ## Migration depuis Jeedom (import de la base)
 

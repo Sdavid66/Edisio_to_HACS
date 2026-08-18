@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.11.0
+- **EDR-B4 : fonction par voie.** Un seul modèle **« EDR-B4 (fonction par voie) »** :
+  à l'ajout, on choisit pour **chacune des 4 voies** *Interrupteur (ON/OFF)* ou
+  *Volet / Store*. **Modifiable ensuite** via la fiche de l'appareil →
+  *Reconfigurer*. Une même EDR-B4 peut donc mélanger volets et ON/OFF. (Les anciens
+  modèles tout-ON/OFF `120` et tout-Volet `120C` restent pris en charge pour les
+  installations existantes, mais sont masqués du catalogue d'ajout.)
+- **Télécommandes SMILE / Diamond.** *Détecter une télécommande* propose d'abord le
+  **type** : **SMILE** (1 touche) ou **Diamond** (1 à 5 touches), puis l'apprentissage
+  bouton par bouton. Le modèle est affiché sur l'appareil. Les entrées « Diamond »
+  du catalogue *Ajouter un récepteur* (réfs 103/108–111) sont **retirées** de la liste
+  (ce sont des télécommandes), tout en restant résolues pour les installs existantes.
+
 ## 1.10.2
 - **Interrupteurs renommés « Edisio Diamond »** : le catalogue ne mentionne plus
   Jeedom. Les réfs 103/108/109/110/111 (ex-« Emetteur N boutons », catégorie

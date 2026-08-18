@@ -8,8 +8,9 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
-    CONF_BUTTONS, CONF_CODE, CONF_DEV_ID, CONF_KIND, CONF_NAME, DOMAIN,
-    KIND_REMOTE, SIGNAL_DISCOVERY, SIGNAL_REMOVED, SIGNAL_RX, SUBENTRY_TYPE_DEVICE,
+    CONF_BUTTONS, CONF_CODE, CONF_DEV_ID, CONF_KIND, CONF_NAME,
+    CONF_REMOTE_MODEL, DOMAIN, KIND_REMOTE, SIGNAL_DISCOVERY, SIGNAL_REMOVED,
+    SIGNAL_RX, SUBENTRY_TYPE_DEVICE,
 )
 from .device import emitter_device_info
 
@@ -28,8 +29,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry,
             continue
         dev_id = sub.data[CONF_DEV_ID]
         remote_name = sub.data.get(CONF_NAME)
+        remote_model = sub.data.get(CONF_REMOTE_MODEL)
         buttons = [
-            EdisioButtonEvent(entry.entry_id, dev_id, remote_name,
+            EdisioButtonEvent(entry.entry_id, dev_id, remote_name, remote_model,
                               b[CONF_CODE], b[CONF_NAME])
             for b in sub.data.get(CONF_BUTTONS, [])
         ]
@@ -94,12 +96,14 @@ class EdisioButtonEvent(EventEntity):
     _attr_event_types = EVENT_TYPES
 
     def __init__(self, entry_id: str, dev_id: str, remote_name: str | None,
-                 code: str, name: str):
+                 remote_model: str | None, code: str, name: str):
         self._dev_id = dev_id
         self._code = code
         self._attr_name = name
         self._attr_unique_id = f"{DOMAIN}_{dev_id}_btn_{code}"
-        self._attr_device_info = emitter_device_info(entry_id, dev_id, remote_name)
+        self._attr_device_info = emitter_device_info(
+            entry_id, dev_id, remote_name, remote_model
+        )
 
     async def async_added_to_hass(self) -> None:
         self.async_on_remove(

@@ -33,9 +33,14 @@ def models_for_platform(platform: str) -> dict[str, dict]:
 
 
 def choices() -> dict[str, str]:
-    """Libelles pour la liste deroulante de configuration."""
+    """Libelles pour la liste deroulante d'ajout (hors modeles masques).
+
+    Les modeles ``hidden`` restent resolus par ``model()`` (retrocompat des
+    appareils deja ajoutes) mais n'apparaissent plus dans le catalogue d'ajout.
+    """
     out = {}
-    for k, v in sorted(catalog().items(), key=lambda x: (x[1]["category"], x[1]["name"])):
+    items = [(k, v) for k, v in catalog().items() if not v.get("hidden")]
+    for k, v in sorted(items, key=lambda x: (x[1]["category"], x[1]["name"])):
         cat = f"{v['category']} · " if v.get("category") else ""
         out[k] = f"{cat}{v['name']}"
     return out

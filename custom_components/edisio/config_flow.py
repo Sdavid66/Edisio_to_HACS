@@ -19,9 +19,10 @@ from homeassistant.helpers.selector import (
 from . import jeedom_import, models
 from .const import (
     CONF_BUTTONS, CONF_CHANNEL, CONF_CODE, CONF_DEV_ID, CONF_DEVICES,
-    CONF_DONGLE, CONF_EDISIO_ID, CONF_KIND, CONF_MODEL, CONF_NAME, CONF_PORT,
-    DOMAIN, DONGLE_EDISIO, DONGLE_RFPLAYER, KIND_REMOTE, KNOWN_USB_IDS,
-    SUBENTRY_TYPE_DEVICE,
+    CONF_DONGLE, CONF_EDISIO_ID, CONF_FUNCTIONS, CONF_KIND, CONF_MODEL,
+    CONF_NAME, CONF_PORT, CONF_REMOTE_MODEL, DOMAIN, DONGLE_EDISIO,
+    DONGLE_RFPLAYER, KIND_REMOTE, KNOWN_USB_IDS, MODEL_EDRB4,
+    SUBENTRY_TYPE_DEVICE, TYPE_COVER, TYPE_SWITCH,
 )
 
 def _dongle_selector():
@@ -30,6 +31,24 @@ def _dongle_selector():
         options=[DONGLE_EDISIO, DONGLE_RFPLAYER],
         translation_key="dongle",
     ))
+
+
+def _function_selector():
+    """Selecteur de fonction d'une voie EDR-B4 (ON/OFF ou Volet)."""
+    return SelectSelector(SelectSelectorConfig(
+        options=[TYPE_SWITCH, TYPE_COVER],
+        translation_key="edrb4_function",
+    ))
+
+
+def _edrb4_fields(defaults: dict | None = None) -> dict:
+    """Champs de choix de fonction par voie pour l'EDR-B4."""
+    defaults = defaults or {}
+    fields = {}
+    for ch in (1, 2, 3, 4):
+        fields[vol.Required(f"func_{ch}",
+                            default=defaults.get(str(ch), TYPE_SWITCH))] = _function_selector()
+    return fields
 
 CONF_FILE = "file"
 CONF_PATH = "path"
@@ -168,6 +187,8 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
 
     _model: str | None = None
     _remote_name: str = ""
+    _remote_model: str = "Edisio Diamond"
+    _max_buttons: int = 5
     _dev_id: str | None = None
     _buttons: list | None = None
     _btn_name: str = ""
@@ -180,22 +201,37 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
         """Menu : detecter une telecommande/bouton ou ajouter un recepteur."""
         return self.async_show_menu(step_id="user", menu_options=["pair", "receiver"])
 
-    # ---------------------------------------- telecommande : apprentissage bouton par bouton
+    # ---------------------------------------- telecommande : choix du modele
     async def async_step_pair(self, user_input=None):
-        """Etape 1 : nommer la telecommande."""
+        """Choix du type de telecommande : SMILE (1 touche) ou Diamond (1 a 5)."""
         if self._gateway() is None:
             return self.async_abort(reason="no_hub")
+        return self.async_show_menu(step_id="pair", menu_options=["smile", "diamond"])
+
+    async def async_step_smile(self, user_input=None):
+        self._remote_model = "Edisio SMILE"
+        self._max_buttons = 1
+        return await self.async_step_pair_name()
+
+    async def async_step_diamond(self, user_input=None):
+        self._remote_model = "Edisio Diamond"
+        self._max_buttons = 5
+        return await self.async_step_pair_name()
+
+    async def async_step_pair_name(self, user_input=None):
+        """Nommer la telecommande, puis apprendre ses boutons."""
         if user_input is not None:
             self._remote_name = (user_input.get(CONF_NAME) or "").strip() \
-                or "Telecommande Edisio"
+                or self._remote_model
             self._buttons = []
             self._dev_id = None
             return await self.async_step_pair_button()
         return self.async_show_form(
-            step_id="pair",
+            step_id="pair_name",
             data_schema=vol.Schema(
-                {vol.Required(CONF_NAME, default="Telecommande Edisio"): str}
+                {vol.Required(CONF_NAME, default=self._remote_model): str}
             ),
+            description_placeholders={"model": self._remote_model},
         )
 
     async def async_step_pair_button(self, user_input=None):
@@ -232,6 +268,9 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
                     {CONF_CODE: pending.get("button"), CONF_NAME: self._btn_name}
                 )
                 gateway.async_end_capture()
+                # Nombre max de boutons atteint (SMILE=1, Diamond=5) -> on termine.
+                if len(self._buttons) >= self._max_buttons:
+                    return await self.async_step_finish()
                 return await self.async_step_pair_next()
         gateway.async_begin_capture()
         return self.async_show_form(
@@ -258,6 +297,7 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
                 CONF_KIND: KIND_REMOTE,
                 CONF_DEV_ID: self._dev_id,
                 CONF_NAME: self._remote_name,
+                CONF_REMOTE_MODEL: self._remote_model,
                 CONF_BUTTONS: self._buttons,
             },
         )
@@ -278,24 +318,30 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
     async def async_step_configure(self, user_input=None):
         """Etape 2 : nom et ID Edisio (vide = emetteur virtuel genere)."""
         mdl = models.model(self._model)
+        is_edrb4 = self._model == MODEL_EDRB4
         if user_input is not None:
             edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
             if not edisio_id:
                 edisio_id = secrets.token_hex(4).upper()
-            return self.async_create_entry(
-                title=user_input[CONF_NAME],
-                data={
-                    CONF_NAME: user_input[CONF_NAME],
-                    CONF_MODEL: self._model,
-                    CONF_EDISIO_ID: edisio_id,
-                },
-            )
+            data = {
+                CONF_NAME: user_input[CONF_NAME],
+                CONF_MODEL: self._model,
+                CONF_EDISIO_ID: edisio_id,
+            }
+            if is_edrb4:
+                data[CONF_FUNCTIONS] = {
+                    str(ch): user_input[f"func_{ch}"] for ch in mdl["channels"]
+                }
+            return self.async_create_entry(title=user_input[CONF_NAME], data=data)
+        fields = {
+            vol.Required(CONF_NAME, default=mdl["name"]): str,
+            vol.Optional(CONF_EDISIO_ID, default=""): str,
+        }
+        if is_edrb4:
+            fields.update(_edrb4_fields())
         return self.async_show_form(
             step_id="configure",
-            data_schema=vol.Schema({
-                vol.Required(CONF_NAME, default=mdl["name"]): str,
-                vol.Optional(CONF_EDISIO_ID, default=""): str,
-            }),
+            data_schema=vol.Schema(fields),
             description_placeholders={"model": mdl["name"]},
         )
 
@@ -304,22 +350,30 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
         subentry = self._get_reconfigure_subentry()
         if subentry.data.get(CONF_KIND) == KIND_REMOTE:
             return await self.async_step_add_button()
-        # Recepteur : nom / ID Edisio
+        # Recepteur : nom / ID Edisio (+ fonction par voie si EDR-B4)
+        mdl = models.model(subentry.data.get(CONF_MODEL))
+        is_edrb4 = subentry.data.get(CONF_MODEL) == MODEL_EDRB4
         if user_input is not None:
             edisio_id = (user_input.get(CONF_EDISIO_ID) or "").strip().upper()
             data = {**subentry.data, CONF_NAME: user_input[CONF_NAME]}
             if edisio_id:
                 data[CONF_EDISIO_ID] = edisio_id
+            if is_edrb4 and mdl:
+                data[CONF_FUNCTIONS] = {
+                    str(ch): user_input[f"func_{ch}"] for ch in mdl["channels"]
+                }
             return self.async_update_and_abort(
                 self._get_entry(), subentry, data=data, title=user_input[CONF_NAME]
             )
+        fields = {
+            vol.Required(CONF_NAME, default=subentry.data.get(CONF_NAME, "")): str,
+            vol.Optional(CONF_EDISIO_ID,
+                         default=subentry.data.get(CONF_EDISIO_ID, "")): str,
+        }
+        if is_edrb4:
+            fields.update(_edrb4_fields(subentry.data.get(CONF_FUNCTIONS)))
         return self.async_show_form(
-            step_id="reconfigure",
-            data_schema=vol.Schema({
-                vol.Required(CONF_NAME, default=subentry.data.get(CONF_NAME, "")): str,
-                vol.Optional(CONF_EDISIO_ID,
-                             default=subentry.data.get(CONF_EDISIO_ID, "")): str,
-            }),
+            step_id="reconfigure", data_schema=vol.Schema(fields),
         )
 
     # ---------------------------------------- telecommande : ajouter un bouton (depuis la fiche)

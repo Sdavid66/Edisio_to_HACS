@@ -11,7 +11,12 @@ CONF_KIND = "kind"
 CONF_DEV_ID = "dev_id"
 CONF_BUTTONS = "buttons"
 CONF_CODE = "code"
+CONF_REMOTE_MODEL = "remote_model"   # "Edisio SMILE" / "Edisio Diamond"
 KIND_REMOTE = "remote"
+
+# EDR-B4 : fonction (plateforme) choisie par voie
+CONF_FUNCTIONS = "functions"      # {"1": "switch"|"cover", ...}
+MODEL_EDRB4 = "EDRB4"             # modele EDR-B4 mixte (plateforme par voie)
 
 # Configuration
 CONF_PORT = "port"
