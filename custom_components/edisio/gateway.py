@@ -276,6 +276,10 @@ class EdisioGateway:
         decoded = protocol.decode(frame)
         if decoded is None:
             return
+        _LOGGER.debug("Edisio RX : %s (id=%s bouton=%s cmd=%s val=%s)",
+                      decoded.get("raw"), decoded.get("id"),
+                      decoded.get("button"), decoded.get("cmd"),
+                      decoded.get("value"))
         self._mark_frame()
         self._dispatch(decoded)
 
@@ -495,6 +499,7 @@ class EdisioGateway:
                 if not protocol.is_valid(bytes.fromhex(frame)):
                     _LOGGER.error("Trame a emettre invalide : %s", frame)
                     continue
+                _LOGGER.debug("Edisio TX : %s (x%d)", frame, TX_REPEAT)
                 payload = bytes.fromhex(frame)
                 for _ in range(TX_REPEAT):
                     self._transport.write(payload)
