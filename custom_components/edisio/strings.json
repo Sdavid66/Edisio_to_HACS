@@ -40,10 +40,10 @@
         "rfplayer": "GCE RFPlayer (RFP1000)"
       }
     },
-    "edrb4_function": {
+    "edrb4_group": {
       "options": {
-        "switch": "Interrupteur (ON/OFF)",
-        "cover": "Volet / Store"
+        "switch": "2 interrupteurs (ON/OFF)",
+        "cover": "1 volet / store"
       }
     }
   },
@@ -139,14 +139,12 @@
         },
         "configure": {
           "title": "Configurer l'appareil",
-          "description": "Modèle : {model}. Tous les canaux sont créés. (EDR-B4 : choisissez la fonction de chaque voie ci-dessous.)",
+          "description": "Modèle : {model}. EDR-B4 : choisissez pour chaque PAIRE de voies « 2 interrupteurs » ou « 1 volet » (un volet ouvre sur la 1re voie, ferme sur la 2e).",
           "data": {
             "name": "Nom",
             "edisio_id": "ID Edisio (vide = généré)",
-            "func_1": "Voie 1",
-            "func_2": "Voie 2",
-            "func_3": "Voie 3",
-            "func_4": "Voie 4"
+            "func_A": "Voies 1 & 2",
+            "func_B": "Voies 3 & 4"
           }
         },
         "reconfigure": {
@@ -154,10 +152,8 @@
           "data": {
             "name": "Nom",
             "edisio_id": "ID Edisio",
-            "func_1": "Voie 1",
-            "func_2": "Voie 2",
-            "func_3": "Voie 3",
-            "func_4": "Voie 4"
+            "func_A": "Voies 1 & 2",
+            "func_B": "Voies 3 & 4"
           }
         },
         "add_button": {

@@ -14,9 +14,11 @@ CONF_CODE = "code"
 CONF_REMOTE_MODEL = "remote_model"   # "Edisio SMILE" / "Edisio Diamond"
 KIND_REMOTE = "remote"
 
-# EDR-B4 : fonction (plateforme) choisie par voie
-CONF_FUNCTIONS = "functions"      # {"1": "switch"|"cover", ...}
-MODEL_EDRB4 = "EDRB4"             # modele EDR-B4 mixte (plateforme par voie)
+# EDR-B4 : fonction choisie PAR PAIRE de voies (A=1&2, B=3&4)
+CONF_FUNCTIONS = "functions"      # {"A": "switch"|"cover", "B": ...}
+CONF_CLOSE_CHANNEL = "close_channel"   # 2e voie d'un volet (fermeture)
+MODEL_EDRB4 = "EDRB4"             # modele EDR-B4 (paires de voies)
+EDRB4_PAIRS = {"A": (1, 2), "B": (3, 4)}
 
 # Configuration
 CONF_PORT = "port"

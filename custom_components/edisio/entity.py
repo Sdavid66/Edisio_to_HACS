@@ -6,28 +6,52 @@ from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import models
 from .const import (
-    CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_FUNCTIONS, CONF_MODEL,
-    CONF_NAME, DOMAIN, SUBENTRY_TYPE_DEVICE,
+    CONF_CHANNEL, CONF_CLOSE_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID,
+    CONF_FUNCTIONS, CONF_MODEL, CONF_NAME, DOMAIN, EDRB4_PAIRS, MODEL_EDRB4,
+    SUBENTRY_TYPE_DEVICE,
 )
 from .device import gateway_id
 from .gateway import EdisioGateway
 
 
-def channel_platform(model: dict, data: dict, channel: int) -> str:
-    """Plateforme d'une voie : par-voie si fonctions definies (EDR-B4), sinon modele."""
-    functions = data.get(CONF_FUNCTIONS)
-    if functions:
-        pf = functions.get(str(channel))
-        if pf:
-            return pf
-    return model["platform"]
+def _expand_edrb4(data: dict) -> list[dict]:
+    """EDR-B4 : chaque paire de voies (1&2, 3&4) = 2 interrupteurs OU 1 volet.
+
+    En volet, une seule entite ``cover`` pilote la paire : ouverture sur la 1re
+    voie, fermeture sur la 2e (``close_channel``).
+    """
+    base = data[CONF_NAME]
+    functions = data.get(CONF_FUNCTIONS) or {}
+    out: list[dict] = []
+    for key, (c_open, c_close) in EDRB4_PAIRS.items():
+        if functions.get(key) == "cover":
+            out.append({
+                CONF_NAME: f"{base} Volet {c_open}-{c_close}",
+                CONF_MODEL: MODEL_EDRB4,
+                CONF_CHANNEL: c_open,
+                CONF_CLOSE_CHANNEL: c_close,
+                CONF_EDISIO_ID: data[CONF_EDISIO_ID],
+                "platform": "cover",
+            })
+        else:  # 2 interrupteurs independants
+            for ch in (c_open, c_close):
+                out.append({
+                    CONF_NAME: f"{base} C{ch}",
+                    CONF_MODEL: MODEL_EDRB4,
+                    CONF_CHANNEL: ch,
+                    CONF_EDISIO_ID: data[CONF_EDISIO_ID],
+                    "platform": "switch",
+                })
+    return out
 
 
 def expand_channels(data: dict) -> list[dict]:
-    """Developpe un module (sous-entree) en un dict par canal (avec sa plateforme)."""
+    """Developpe un module (sous-entree) en un dict par entite (avec sa plateforme)."""
     model = models.model(data[CONF_MODEL])
     if not model:
         return []
+    if data[CONF_MODEL] == MODEL_EDRB4:
+        return _expand_edrb4(data)
     base = data[CONF_NAME]
     multi = len(model["channels"]) > 1
     return [
@@ -36,7 +60,7 @@ def expand_channels(data: dict) -> list[dict]:
             CONF_MODEL: data[CONF_MODEL],
             CONF_CHANNEL: ch,
             CONF_EDISIO_ID: data[CONF_EDISIO_ID],
-            "platform": channel_platform(model, data, ch),
+            "platform": model["platform"],
         }
         for ch in model["channels"]
     ]
@@ -54,6 +78,7 @@ class EdisioReceiver(Entity):
         self._model = models.model(dev[CONF_MODEL])
         self._id = dev[CONF_EDISIO_ID]
         self._channel = dev.get(CONF_CHANNEL, 1)
+        self._close_channel = dev.get(CONF_CLOSE_CHANNEL)
         self._attr_name = dev[CONF_NAME]
         platform = dev.get("platform") or self._model["platform"]
         self._attr_unique_id = (
@@ -68,11 +93,16 @@ class EdisioReceiver(Entity):
         )
 
     async def _send(self, action: str, slider: int | None = None) -> None:
+        await self._send_ch(action, self._channel, slider)
+
+    async def _send_ch(self, action: str, channel: int,
+                       slider: int | None = None) -> None:
+        """Emet une action sur une voie precise (utile pour les volets EDR-B4)."""
         template = self._model["frames"].get(action)
         if not template:
             return
         await self._gateway.async_send_action(
-            self._id, self._channel, action, template, slider
+            self._id, channel, action, template, slider
         )
 
     @staticmethod

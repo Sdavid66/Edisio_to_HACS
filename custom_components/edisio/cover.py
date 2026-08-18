@@ -29,14 +29,27 @@ class EdisioCover(EdisioReceiver, CoverEntity):
         self._attr_is_closed = None  # pas de retour d'etat
 
     async def async_open_cover(self, **kwargs):
-        await self._send("open")
+        if self._close_channel is not None:
+            # EDR-B4 : ouverture = activation de la 1re voie de la paire.
+            await self._send_ch("on", self._channel)
+        else:
+            await self._send("open")
         self._attr_is_closed = False
         self.async_write_ha_state()
 
     async def async_close_cover(self, **kwargs):
-        await self._send("close")
+        if self._close_channel is not None:
+            # EDR-B4 : fermeture = activation de la 2e voie de la paire.
+            await self._send_ch("on", self._close_channel)
+        else:
+            await self._send("close")
         self._attr_is_closed = True
         self.async_write_ha_state()
 
     async def async_stop_cover(self, **kwargs):
-        await self._send("stop")
+        if self._close_channel is not None:
+            # EDR-B4 : arret = coupure des deux voies de la paire.
+            await self._send_ch("off", self._channel)
+            await self._send_ch("off", self._close_channel)
+        else:
+            await self._send("stop")

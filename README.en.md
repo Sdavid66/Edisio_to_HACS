@@ -112,12 +112,14 @@ the same paired ID.
 | 115 | Roller shutter module | cover | 1 |
 | 116 | EMSD-300A micro-module | light | 1 |
 | 119 | EDR-D4 (ON/OFF/dimming) | light (dimmer) | 4 |
-| EDRB4 | EDR-B4 (**per-channel function**: ON/OFF or shutter) | switch **and/or** cover | 4 |
+| EDRB4 | EDR-B4 (channel pairs: ON/OFF or cover) | switch **and/or** cover | 4 |
 
-> **EDR-B4 — per-channel function.** When adding it, choose for **each of the 4
-> channels** "Switch (ON/OFF)" or "Cover / blind". Changeable later from the device
-> page → **Reconfigure**. (The old all-ON/OFF and all-shutter models remain supported
-> for existing installs.)
+> **EDR-B4 — per channel-pair function.** The 4 outputs are configured **in pairs**:
+> **channels 1 & 2** and **channels 3 & 4**. For each pair, choose when adding:
+> "2 switches (ON/OFF)" or "1 cover / blind". In cover mode, **a single** `cover`
+> entity drives the pair: it **opens on the 1st channel** and **closes on the 2nd**
+> (same shutter). Changeable later from the device page → **Reconfigure**. (The old
+> all-ON/OFF and all-shutter models remain supported for existing installs.)
 
 The **SMILE / Diamond remotes** are not receivers: they are learned via **Detect a
 remote** (see above). Other emitters (sensors, contacts) are **discovered
