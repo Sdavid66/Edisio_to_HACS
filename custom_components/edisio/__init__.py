@@ -156,7 +156,10 @@ def _register_services(hass: HomeAssistant) -> None:
         await _gateways()[0].async_send(frames)
 
     async def _handle_send_raw(call: ServiceCall) -> None:
-        await _gateways()[0].async_send([call.data["frame"]])
+        # Trame simple, ou plusieurs trames séparées par « && » (comme les
+        # templates du catalogue) émises dans l'ordre, timing Edisio.
+        frames = [f for f in call.data["frame"].split("&&") if f]
+        await _gateways()[0].async_send(frames)
 
     async def _handle_import(call: ServiceCall) -> None:
         path = call.data["path"]
