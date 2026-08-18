@@ -125,8 +125,8 @@ sous le même ID appairé.
 > **EDR-B4 — fonction par paire de voies.** Les 4 sorties se configurent **par paire** :
 > **voies 1 & 2** et **voies 3 & 4**. Pour chaque paire, choisissez à l'ajout :
 > « 2 interrupteurs (ON/OFF) » ou « 1 volet / store ». En mode volet, **une seule**
-> entité `cover` pilote la paire : elle **ouvre sur la 1ʳᵉ voie** et **ferme sur la
-> 2ᵉ** (même volet). Modifiable ensuite via la fiche de l'appareil → **Reconfigurer**.
+> entité `cover` pilote la paire avec les vraies commandes **montée / descente / stop**
+> du volet. Modifiable ensuite via la fiche de l'appareil → **Reconfigurer**.
 > (Les anciens modèles tout-ON/OFF et tout-Volet restent pris en charge pour les
 > installations existantes.)
 

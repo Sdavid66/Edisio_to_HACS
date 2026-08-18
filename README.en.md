@@ -118,8 +118,8 @@ the same paired ID.
 > **EDR-B4 — per channel-pair function.** The 4 outputs are configured **in pairs**:
 > **channels 1 & 2** and **channels 3 & 4**. For each pair, choose when adding:
 > "2 switches (ON/OFF)" or "1 cover / blind". In cover mode, **a single** `cover`
-> entity drives the pair: it **opens on the 1st channel** and **closes on the 2nd**
-> (same shutter). Changeable later from the device page → **Reconfigure**. (The old
+> entity drives the pair using the shutter's real **up / down / stop** commands.
+> Changeable later from the device page → **Reconfigure**. (The old
 > all-ON/OFF and all-shutter models remain supported for existing installs.)
 
 > **EMSD-300A — ON/OFF or dimmer.** The mode is set by the module's **DIP switch 2**
