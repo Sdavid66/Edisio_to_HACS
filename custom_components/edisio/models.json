@@ -37,7 +37,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#011E010001640D0A&&6C7663#ID##GROUP#011E010009640D0A",
       "off": "6C7663#ID##GROUP#011E010002640D0A&&6C7663#ID##GROUP#011E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "108": {
     "name": "Edisio Diamond 2 boutons",
@@ -51,7 +52,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#021E010001640D0A&&6C7663#ID##GROUP#021E010009640D0A",
       "off": "6C7663#ID##GROUP#021E010002640D0A&&6C7663#ID##GROUP#021E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "109": {
     "name": "Edisio Diamond 3 boutons",
@@ -66,7 +68,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#031E010001640D0A&&6C7663#ID##GROUP#031E010009640D0A",
       "off": "6C7663#ID##GROUP#031E010002640D0A&&6C7663#ID##GROUP#031E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "110": {
     "name": "Edisio Diamond 4 boutons",
@@ -82,7 +85,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#041E010001640D0A&&6C7663#ID##GROUP#041E010009640D0A",
       "off": "6C7663#ID##GROUP#041E010002640D0A&&6C7663#ID##GROUP#041E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "111": {
     "name": "Edisio Diamond 5 boutons",
@@ -99,7 +103,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
       "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "112": {
     "name": "Micro-module EMV-400 (Volet roulant)",
@@ -200,7 +205,8 @@
     "frames": {
       "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
       "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
-    }
+    },
+    "hidden": true
   },
   "120C": {
     "name": "EDR-B4 (Volet/Store)",
@@ -214,6 +220,26 @@
       4
     ],
     "frames": {
+      "open": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "close": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
+      "stop": "6C7663#ID##GROUP#031E01000B640D0A"
+    },
+    "hidden": true
+  },
+  "EDRB4": {
+    "name": "EDR-B4 (par voie : ON/OFF ou Volet)",
+    "category": "Modules Rail DIN",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
+      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
       "open": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
       "close": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
       "stop": "6C7663#ID##GROUP#031E01000B640D0A"

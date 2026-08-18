@@ -6,15 +6,25 @@ from homeassistant.helpers.device_registry import DeviceInfo
 
 from . import models
 from .const import (
-    CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_MODEL, CONF_NAME, DOMAIN,
-    SUBENTRY_TYPE_DEVICE,
+    CONF_CHANNEL, CONF_DEVICES, CONF_EDISIO_ID, CONF_FUNCTIONS, CONF_MODEL,
+    CONF_NAME, DOMAIN, SUBENTRY_TYPE_DEVICE,
 )
 from .device import gateway_id
 from .gateway import EdisioGateway
 
 
+def channel_platform(model: dict, data: dict, channel: int) -> str:
+    """Plateforme d'une voie : par-voie si fonctions definies (EDR-B4), sinon modele."""
+    functions = data.get(CONF_FUNCTIONS)
+    if functions:
+        pf = functions.get(str(channel))
+        if pf:
+            return pf
+    return model["platform"]
+
+
 def expand_channels(data: dict) -> list[dict]:
-    """Developpe un module (sous-entree) en un dict par canal du modele."""
+    """Developpe un module (sous-entree) en un dict par canal (avec sa plateforme)."""
     model = models.model(data[CONF_MODEL])
     if not model:
         return []
@@ -26,6 +36,7 @@ def expand_channels(data: dict) -> list[dict]:
             CONF_MODEL: data[CONF_MODEL],
             CONF_CHANNEL: ch,
             CONF_EDISIO_ID: data[CONF_EDISIO_ID],
+            "platform": channel_platform(model, data, ch),
         }
         for ch in model["channels"]
     ]
@@ -44,8 +55,9 @@ class EdisioReceiver(Entity):
         self._id = dev[CONF_EDISIO_ID]
         self._channel = dev.get(CONF_CHANNEL, 1)
         self._attr_name = dev[CONF_NAME]
+        platform = dev.get("platform") or self._model["platform"]
         self._attr_unique_id = (
-            f"{DOMAIN}_{self._id}_{self._channel}_{self._model['platform']}"
+            f"{DOMAIN}_{self._id}_{self._channel}_{platform}"
         )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._id)},
@@ -85,10 +97,10 @@ class EdisioReceiver(Entity):
         for sub_id, sub in entry.subentries.items():
             if sub.subentry_type != SUBENTRY_TYPE_DEVICE:
                 continue
-            model = models.model(sub.data.get(CONF_MODEL))
-            if not model or model["platform"] != platform:
-                continue
-            chans = expand_channels(dict(sub.data))
+            data = dict(sub.data)
+            if not models.model(data.get(CONF_MODEL)):
+                continue  # telecommandes (kind=remote) et modeles inconnus ignores
+            chans = [c for c in expand_channels(data) if c["platform"] == platform]
             if chans:
                 groups.append((sub_id, chans))
 

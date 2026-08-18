@@ -39,6 +39,12 @@
         "edisio": "Edisio dongle (transparent USB, 868 MHz)",
         "rfplayer": "GCE RFPlayer (RFP1000)"
       }
+    },
+    "edrb4_function": {
+      "options": {
+        "switch": "Switch (ON/OFF)",
+        "cover": "Cover / blind"
+      }
     }
   },
   "options": {
@@ -94,8 +100,15 @@
           }
         },
         "pair": {
-          "title": "New remote",
-          "description": "Give the remote a name. You will then learn its buttons one by one.",
+          "title": "Remote type",
+          "menu_options": {
+            "smile": "SMILE (1 button)",
+            "diamond": "Diamond (1 to 5 buttons)"
+          }
+        },
+        "pair_name": {
+          "title": "Name the remote",
+          "description": "Model: {model}. Give it a name, then learn its buttons one by one.",
           "data": {
             "name": "Remote name"
           }
@@ -126,17 +139,25 @@
         },
         "configure": {
           "title": "Configure the device",
-          "description": "Model: {model}. All channels of the module will be created.",
+          "description": "Model: {model}. All channels are created. (EDR-B4: choose each channel's function below.)",
           "data": {
             "name": "Name",
-            "edisio_id": "Edisio ID (blank = generated)"
+            "edisio_id": "Edisio ID (blank = generated)",
+            "func_1": "Channel 1",
+            "func_2": "Channel 2",
+            "func_3": "Channel 3",
+            "func_4": "Channel 4"
           }
         },
         "reconfigure": {
           "title": "Edit the device",
           "data": {
             "name": "Name",
-            "edisio_id": "Edisio ID"
+            "edisio_id": "Edisio ID",
+            "func_1": "Channel 1",
+            "func_2": "Channel 2",
+            "func_3": "Channel 3",
+            "func_4": "Channel 4"
           }
         },
         "add_button": {

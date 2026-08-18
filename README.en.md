@@ -68,11 +68,12 @@ When adding the integration (and via **Reconfigure**), choose the **dongle type*
 
 ## How it works
 
-### Multi-button remotes (1 to 5 buttons, wall switches)
-**Add device → Detect a remote**: name the remote, then learn its buttons **one by
-one** (name the button → inclusion turns on → press → learned → "Add another
-button?"). You get a **single device** grouping **one `event` entity per button**
-(+ battery). To add one later: device page → **Reconfigure**.
+### SMILE / Diamond remotes (1 to 5 buttons)
+**Add device → Detect a remote** → choose the type: **SMILE** (1 button) or
+**Diamond** (1 to 5 buttons). Name the remote, then learn its buttons **one by one**
+(name the button → inclusion turns on → press → learned → "Add another button?").
+You get a **single device** grouping **one `event` entity per button** (+ battery).
+To add one later: device page → **Reconfigure**.
 
 ### Other emitters (sensors, contacts) — automatic discovery
 In **inclusion mode**, a received frame shows a discovery card:
@@ -105,22 +106,22 @@ the same paired ID.
 |------|------|-----------|----------|
 | 0C | Pilot-wire module | select | 1 |
 | 0F | Boiler module | select | 1 |
-| 103 | Edisio Diamond 1-button | switch | 1 |
-| 108 | Edisio Diamond 2-button | switch | 2 |
-| 109 | Edisio Diamond 3-button | switch | 3 |
-| 110 | Edisio Diamond 4-button | switch | 4 |
-| 111 | Edisio Diamond 5-button | switch | 5 |
 | 112 | EMV-400 micro-module (roller shutter) | cover | 1 |
 | 113 | EMV-400 micro-module (light) | light | 2 |
 | 114 | Light module | light | 1 |
 | 115 | Roller shutter module | cover | 1 |
 | 116 | EMSD-300A micro-module | light | 1 |
 | 119 | EDR-D4 (ON/OFF/dimming) | light (dimmer) | 4 |
-| 120 | EDR-B4 (ON/OFF) | switch | 4 |
-| 120C | EDR-B4 (shutter/blind) | cover | 4 |
+| EDRB4 | EDR-B4 (**per-channel function**: ON/OFF or shutter) | switch **and/or** cover | 4 |
 
-Emitters (remotes, switches, sensors) are not listed here: they are **discovered
-automatically** on reception and exposed as `event`/`sensor`/`binary_sensor`.
+> **EDR-B4 — per-channel function.** When adding it, choose for **each of the 4
+> channels** "Switch (ON/OFF)" or "Cover / blind". Changeable later from the device
+> page → **Reconfigure**. (The old all-ON/OFF and all-shutter models remain supported
+> for existing installs.)
+
+The **SMILE / Diamond remotes** are not receivers: they are learned via **Detect a
+remote** (see above). Other emitters (sensors, contacts) are **discovered
+automatically** and exposed as `event`/`sensor`/`binary_sensor`.
 
 ## Migration from Jeedom (database import)
 

@@ -39,6 +39,12 @@
         "edisio": "Dongle Edisio (USB 868 MHz, transparent)",
         "rfplayer": "GCE RFPlayer (RFP1000)"
       }
+    },
+    "edrb4_function": {
+      "options": {
+        "switch": "Interrupteur (ON/OFF)",
+        "cover": "Volet / Store"
+      }
     }
   },
   "options": {
@@ -94,8 +100,15 @@
           }
         },
         "pair": {
-          "title": "Nouvelle télécommande",
-          "description": "Donnez un nom à la télécommande. Vous apprendrez ensuite ses boutons un par un.",
+          "title": "Type de télécommande",
+          "menu_options": {
+            "smile": "SMILE (1 touche)",
+            "diamond": "Diamond (1 à 5 touches)"
+          }
+        },
+        "pair_name": {
+          "title": "Nommer la télécommande",
+          "description": "Modèle : {model}. Donnez un nom, puis apprenez ses boutons un par un.",
           "data": {
             "name": "Nom de la télécommande"
           }
@@ -126,17 +139,25 @@
         },
         "configure": {
           "title": "Configurer l'appareil",
-          "description": "Modèle : {model}. Tous les canaux du module seront créés.",
+          "description": "Modèle : {model}. Tous les canaux sont créés. (EDR-B4 : choisissez la fonction de chaque voie ci-dessous.)",
           "data": {
             "name": "Nom",
-            "edisio_id": "ID Edisio (vide = généré)"
+            "edisio_id": "ID Edisio (vide = généré)",
+            "func_1": "Voie 1",
+            "func_2": "Voie 2",
+            "func_3": "Voie 3",
+            "func_4": "Voie 4"
           }
         },
         "reconfigure": {
           "title": "Modifier l'appareil",
           "data": {
             "name": "Nom",
-            "edisio_id": "ID Edisio"
+            "edisio_id": "ID Edisio",
+            "func_1": "Voie 1",
+            "func_2": "Voie 2",
+            "func_3": "Voie 3",
+            "func_4": "Voie 4"
           }
         },
         "add_button": {
