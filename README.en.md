@@ -110,7 +110,8 @@ the same paired ID.
 | 113 | EMV-400 micro-module (light) | light | 2 |
 | 114 | Light module | light | 1 |
 | 115 | Roller shutter module | cover | 1 |
-| 116 | EMSD-300A micro-module | light | 1 |
+| 116 | EMSD-300A micro-module (ON/OFF) | light | 1 |
+| 116D | EMSD-300A micro-module (dimmer) | light (dimmer) | 1 |
 | 119 | EDR-D4 (ON/OFF/dimming) | light (dimmer) | 4 |
 | EDRB4 | EDR-B4 (channel pairs: ON/OFF or cover) | switch **and/or** cover | 4 |
 
@@ -120,6 +121,11 @@ the same paired ID.
 > entity drives the pair: it **opens on the 1st channel** and **closes on the 2nd**
 > (same shutter). Changeable later from the device page → **Reconfigure**. (The old
 > all-ON/OFF and all-shutter models remain supported for existing installs.)
+
+> **EMSD-300A — ON/OFF or dimmer.** The mode is set by the module's **DIP switch 2**
+> (*Up* = ON/OFF, *Down* = dimmer). Pick the matching variant when adding it. In dimmer
+> mode, brightness is controlled from Home Assistant (the module remembers the last
+> level; resistive load R only, 25–300 W).
 
 The **SMILE / Diamond remotes** are not receivers: they are learned via **Detect a
 remote** (see above). Other emitters (sensors, contacts) are **discovered
