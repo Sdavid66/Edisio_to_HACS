@@ -38,12 +38,15 @@ dependency.
 > validated bit-for-bit against the original templates (see `tests/test_protocol.py`).
 
 ## Hardware
+<img align="right" width="190" src="images/dongle-edisio.jpg" alt="Edisio USB dongle 868 MHz">
+
 - **Edisio USB dongle** (Prolific PL2303 `067B:2303` or FTDI FT232 `0403:6001`), 9600 baud.
 - **GCE RFPlayer (RFP1000)** — 433/868 MHz radio gateway, in **test/beta** (see below).
 - Edisio modules: switches/remotes (emitters) and receivers (micro-modules, DIN rail,
   EMV-400 shutter…).
 
 ## Dongle / gateway: Edisio or GCE RFPlayer
+<img align="right" width="150" src="images/rfplayer.jpg" alt="GCE RFPlayer RFP1000 gateway">
 
 When adding the integration (and via **Reconfigure**), choose the **dongle type**:
 
@@ -69,6 +72,8 @@ When adding the integration (and via **Reconfigure**), choose the **dongle type*
 ## How it works
 
 ### SMILE / Diamond remotes (1 to 5 buttons)
+<img align="right" width="230" src="images/diamond.jpg" alt="Edisio Diamond glass switches (multi-colour)">
+
 **Add device → Detect a remote** → choose the type: **SMILE** (1 button) or
 **Diamond** (1 to 5 buttons). Name the remote, then learn its buttons **one by one**
 (name the button → inclusion turns on → press → learned → "Add another button?").
@@ -97,6 +102,16 @@ service with the entity's `edisio_id` (or simply operate the entity during the
 learning window).
 
 ## Supported receiver models (exact catalog frames)
+
+<p align="center">
+  <img width="240" src="images/emv-400.jpg" alt="EMV-400 micro-module">
+  &nbsp;
+  <img width="240" src="images/emsd-300a.jpg" alt="EMSD-300A micro-module">
+  <br>
+  <img width="240" src="images/edr-b4.jpg" alt="EDR-B4 DIN rail module">
+  &nbsp;
+  <img width="240" src="images/edr-d4.jpg" alt="EDR-D4 DIN rail module">
+</p>
 
 Each model below is defined with its **original frames** (verified against the Jeedom
 plugin). When adding a multi-channel module, **all its channels** are created under
