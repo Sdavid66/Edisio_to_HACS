@@ -7,7 +7,7 @@
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-soutenir%20le%20projet-orange?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/sdavid66)
 
 > Intégration **custom** Home Assistant pour la domotique **Edisio** (dongle USB 868 MHz),
-> portée depuis le plugin Jeedom. 100 % locale, sans cloud.
+> 100 % locale, sans cloud. Vous pouvez également transférer vos anciennes intégrations Jeedom.
 
 > ☕ Ce projet vous est utile ? Vous pouvez **[m'offrir un café](https://buymeacoffee.com/sdavid66)**
 > pour soutenir son développement — merci !
