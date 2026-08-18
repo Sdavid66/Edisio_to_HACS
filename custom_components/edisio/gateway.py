@@ -501,9 +501,11 @@ class EdisioGateway:
                     continue
                 _LOGGER.debug("Edisio TX : %s (x%d)", frame, TX_REPEAT)
                 payload = bytes.fromhex(frame)
-                for _ in range(TX_REPEAT):
+                for i in range(TX_REPEAT):
                     self._transport.write(payload)
-                    await asyncio.sleep(TX_DELAY)
+                    # 0,14 s entre les 3 répétitions, 0,02 s en fin de trame :
+                    # enchaîne vite la 2e trame d'une commande « && » (cf. edisiod.py).
+                    await asyncio.sleep(TX_DELAY if i < TX_REPEAT - 1 else 0.02)
 
     # ---------------------------------------------------------------- persist
     async def _async_load(self) -> None:

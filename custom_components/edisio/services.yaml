@@ -61,8 +61,11 @@ send_raw:
   fields:
     frame:
       name: Trame
+      description: >
+        Trame hexa complete. Plusieurs trames peuvent etre chainees avec « && »
+        (comme les templates du catalogue) : elles sont emises a la suite.
       required: true
-      example: "6C7663A1B2C3D401041E010001640D0A"
+      example: "6C7663A1B2C3D401051E010002640D0A&&6C7663A1B2C3D401051E01001B640D0A"
       selector:
         text:
 
