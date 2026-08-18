@@ -119,12 +119,15 @@ sous le même ID appairé.
 | 115 | Module volet roulant | cover | 1 |
 | 116 | Micro-module EMSD-300A | light | 1 |
 | 119 | EDR-D4 (ON/OFF/Intensité) | light (variateur) | 4 |
-| EDRB4 | EDR-B4 (**fonction par voie** : ON/OFF ou Volet) | switch **et/ou** cover | 4 |
+| EDRB4 | EDR-B4 (paires de voies : ON/OFF ou Volet) | switch **et/ou** cover | 4 |
 
-> **EDR-B4 — fonction par voie.** À l'ajout, choisissez pour **chacune des 4 voies**
-> « Interrupteur (ON/OFF) » ou « Volet / Store ». Modifiable ensuite via la fiche de
-> l'appareil → **Reconfigurer**. (Les anciens modèles tout-ON/OFF et tout-Volet
-> restent pris en charge pour les installations existantes.)
+> **EDR-B4 — fonction par paire de voies.** Les 4 sorties se configurent **par paire** :
+> **voies 1 & 2** et **voies 3 & 4**. Pour chaque paire, choisissez à l'ajout :
+> « 2 interrupteurs (ON/OFF) » ou « 1 volet / store ». En mode volet, **une seule**
+> entité `cover` pilote la paire : elle **ouvre sur la 1ʳᵉ voie** et **ferme sur la
+> 2ᵉ** (même volet). Modifiable ensuite via la fiche de l'appareil → **Reconfigurer**.
+> (Les anciens modèles tout-ON/OFF et tout-Volet restent pris en charge pour les
+> installations existantes.)
 
 Les **télécommandes SMILE / Diamond** ne sont pas des récepteurs : elles s'apprennent
 via **Détecter une télécommande** (voir plus haut). Les autres émetteurs (sondes,

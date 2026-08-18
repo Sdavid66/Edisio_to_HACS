@@ -40,10 +40,10 @@
         "rfplayer": "GCE RFPlayer (RFP1000)"
       }
     },
-    "edrb4_function": {
+    "edrb4_group": {
       "options": {
-        "switch": "Switch (ON/OFF)",
-        "cover": "Cover / blind"
+        "switch": "2 switches (ON/OFF)",
+        "cover": "1 cover / blind"
       }
     }
   },
@@ -139,14 +139,12 @@
         },
         "configure": {
           "title": "Configure the device",
-          "description": "Model: {model}. All channels are created. (EDR-B4: choose each channel's function below.)",
+          "description": "Model: {model}. EDR-B4: for each PAIR of channels choose “2 switches” or “1 cover” (a cover opens on the 1st channel, closes on the 2nd).",
           "data": {
             "name": "Name",
             "edisio_id": "Edisio ID (blank = generated)",
-            "func_1": "Channel 1",
-            "func_2": "Channel 2",
-            "func_3": "Channel 3",
-            "func_4": "Channel 4"
+            "func_A": "Channels 1 & 2",
+            "func_B": "Channels 3 & 4"
           }
         },
         "reconfigure": {
@@ -154,10 +152,8 @@
           "data": {
             "name": "Name",
             "edisio_id": "Edisio ID",
-            "func_1": "Channel 1",
-            "func_2": "Channel 2",
-            "func_3": "Channel 3",
-            "func_4": "Channel 4"
+            "func_A": "Channels 1 & 2",
+            "func_B": "Channels 3 & 4"
           }
         },
         "add_button": {

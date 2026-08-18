@@ -227,7 +227,7 @@
     "hidden": true
   },
   "EDRB4": {
-    "name": "EDR-B4 (par voie : ON/OFF ou Volet)",
+    "name": "EDR-B4 (voies 1&2 / 3&4 : ON/OFF ou Volet)",
     "category": "Modules Rail DIN",
     "platform": "switch",
     "dimmable": false,
@@ -239,10 +239,7 @@
     ],
     "frames": {
       "on": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
-      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
-      "open": "6C7663#ID##GROUP#051E010001640D0A&&6C7663#ID##GROUP#051E010009640D0A",
-      "close": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A",
-      "stop": "6C7663#ID##GROUP#031E01000B640D0A"
+      "off": "6C7663#ID##GROUP#051E010002640D0A&&6C7663#ID##GROUP#051E01001B640D0A"
     }
   }
 }

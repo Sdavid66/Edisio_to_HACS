@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.11.1
+- **EDR-B4 : volets par paire de voies.** Correction du modèle EDR-B4 : en mode
+  volet, les voies vont **par paire** (**1 & 2** et **3 & 4**), et **un volet =
+  une seule entité `cover`** pilotant la paire — **ouverture sur la 1ʳᵉ voie,
+  fermeture sur la 2ᵉ**. La configuration se fait désormais **par paire** (« 2
+  interrupteurs » ou « 1 volet »), au lieu de 4 voies indépendantes. L'arrêt coupe
+  les deux voies de la paire. *(Comportement des trames volet à valider sur
+  matériel réel ; logs `custom_components.edisio: debug`.)*
+
 ## 1.11.0
 - **EDR-B4 : fonction par voie.** Un seul modèle **« EDR-B4 (fonction par voie) »** :
   à l'ajout, on choisit pour **chacune des 4 voies** *Interrupteur (ON/OFF)* ou

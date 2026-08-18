@@ -33,21 +33,21 @@ def _dongle_selector():
     ))
 
 
-def _function_selector():
-    """Selecteur de fonction d'une voie EDR-B4 (ON/OFF ou Volet)."""
+def _group_selector():
+    """Selecteur de fonction d'une paire de voies EDR-B4 (2 ON/OFF ou 1 Volet)."""
     return SelectSelector(SelectSelectorConfig(
         options=[TYPE_SWITCH, TYPE_COVER],
-        translation_key="edrb4_function",
+        translation_key="edrb4_group",
     ))
 
 
 def _edrb4_fields(defaults: dict | None = None) -> dict:
-    """Champs de choix de fonction par voie pour l'EDR-B4."""
+    """Champs de choix par PAIRE de voies pour l'EDR-B4 (A = 1&2, B = 3&4)."""
     defaults = defaults or {}
     fields = {}
-    for ch in (1, 2, 3, 4):
-        fields[vol.Required(f"func_{ch}",
-                            default=defaults.get(str(ch), TYPE_SWITCH))] = _function_selector()
+    for key in ("A", "B"):
+        fields[vol.Required(f"func_{key}",
+                            default=defaults.get(key, TYPE_SWITCH))] = _group_selector()
     return fields
 
 CONF_FILE = "file"
@@ -330,7 +330,7 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
             }
             if is_edrb4:
                 data[CONF_FUNCTIONS] = {
-                    str(ch): user_input[f"func_{ch}"] for ch in mdl["channels"]
+                    key: user_input[f"func_{key}"] for key in ("A", "B")
                 }
             return self.async_create_entry(title=user_input[CONF_NAME], data=data)
         fields = {
@@ -360,7 +360,7 @@ class EdisioDeviceSubentryFlow(ConfigSubentryFlow):
                 data[CONF_EDISIO_ID] = edisio_id
             if is_edrb4 and mdl:
                 data[CONF_FUNCTIONS] = {
-                    str(ch): user_input[f"func_{ch}"] for ch in mdl["channels"]
+                    key: user_input[f"func_{key}"] for key in ("A", "B")
                 }
             return self.async_update_and_abort(
                 self._get_entry(), subentry, data=data, title=user_input[CONF_NAME]
