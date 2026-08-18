@@ -40,12 +40,15 @@ aucune dépendance cloud.
 > a été validé bit à bit contre les templates d'origine (voir `tests/test_protocol.py`).
 
 ## Matériel
+<img align="right" width="190" src="images/dongle-edisio.jpg" alt="Dongle USB Edisio 868 MHz">
+
 - **Dongle USB Edisio** (Prolific PL2303 `067B:2303` ou FTDI FT232 `0403:6001`), 9600 bauds.
 - **GCE RFPlayer (RFP1000)** — passerelle radio 433/868 MHz, en **version de test** (voir plus bas).
 - Modules Edisio : interrupteurs/télécommandes (émetteurs) et récepteurs
   (micro-modules, rail DIN, volet EMV-400…).
 
 ## Dongle / passerelle : Edisio ou GCE RFPlayer
+<img align="right" width="150" src="images/rfplayer.jpg" alt="Passerelle GCE RFPlayer RFP1000">
 
 À l'ajout de l'intégration (et via **Reconfigurer**), choisissez le **type de dongle** :
 
@@ -73,6 +76,8 @@ aucune dépendance cloud.
 ## Fonctionnement
 
 ### Télécommandes SMILE / Diamond (1 à 5 boutons)
+<img align="right" width="230" src="images/diamond.jpg" alt="Interrupteurs Edisio Diamond (verre, multi-couleurs)">
+
 **Ajouter un appareil → Détecter une télécommande** → choisissez le type :
 **SMILE** (1 touche) ou **Diamond** (1 à 5 touches). Nommez la télécommande, puis
 apprenez ses boutons **un par un** (nommez le bouton → l'inclusion s'active →
@@ -104,6 +109,16 @@ pendant la fenêtre d'apprentissage).
 
 
 ## Modèles de récepteurs pris en charge (trames exactes du catalogue)
+
+<p align="center">
+  <img width="240" src="images/emv-400.jpg" alt="Micro-module EMV-400">
+  &nbsp;
+  <img width="240" src="images/emsd-300a.jpg" alt="Micro-module EMSD-300A">
+  <br>
+  <img width="240" src="images/edr-b4.jpg" alt="Module rail DIN EDR-B4">
+  &nbsp;
+  <img width="240" src="images/edr-d4.jpg" alt="Module rail DIN EDR-D4">
+</p>
 
 Chaque modèle ci-dessous est défini avec ses **trames d'origine** (vérifiées contre
 le plugin Jeedom). À l'ajout d'un module multi-canaux, **tous ses canaux** sont créés
