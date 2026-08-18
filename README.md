@@ -117,7 +117,8 @@ sous le même ID appairé.
 | 113 | Micro-module EMV-400 (Lumière) | light | 2 |
 | 114 | Module lumière | light | 1 |
 | 115 | Module volet roulant | cover | 1 |
-| 116 | Micro-module EMSD-300A | light | 1 |
+| 116 | Micro-module EMSD-300A (Marche/Arrêt) | light | 1 |
+| 116D | Micro-module EMSD-300A (Variateur) | light (variateur) | 1 |
 | 119 | EDR-D4 (ON/OFF/Intensité) | light (variateur) | 4 |
 | EDRB4 | EDR-B4 (paires de voies : ON/OFF ou Volet) | switch **et/ou** cover | 4 |
 
@@ -128,6 +129,12 @@ sous le même ID appairé.
 > 2ᵉ** (même volet). Modifiable ensuite via la fiche de l'appareil → **Reconfigurer**.
 > (Les anciens modèles tout-ON/OFF et tout-Volet restent pris en charge pour les
 > installations existantes.)
+
+> **EMSD-300A — Marche/Arrêt ou Variateur.** Le mode est fixé par le **DIP switch 2**
+> du module (*Haut* = Marche/Arrêt, *Bas* = Variateur). Choisissez à l'ajout la
+> variante correspondant à votre réglage. En mode Variateur, la luminosité se pilote
+> depuis Home Assistant (le module mémorise la dernière intensité ; charge résistive
+> R uniquement, 25–300 W).
 
 Les **télécommandes SMILE / Diamond** ne sont pas des récepteurs : elles s'apprennent
 via **Détecter une télécommande** (voir plus haut). Les autres émetteurs (sondes,
