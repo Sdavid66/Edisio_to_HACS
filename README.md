@@ -40,7 +40,7 @@ aucune dépendance cloud.
 > a été validé bit à bit contre les templates d'origine (voir `tests/test_protocol.py`).
 
 ## Matériel
-<img align="right" width="190" src="images/dongle-edisio.jpg" alt="Dongle USB Edisio 868 MHz">
+<img align="right" width="190" src="images/edisio-clef-usb-a-edisio-868mhz.jpg" alt="Dongle USB Edisio 868 MHz">
 
 - **Dongle USB Edisio** (Prolific PL2303 `067B:2303` ou FTDI FT232 `0403:6001`), 9600 bauds.
 - **GCE RFPlayer (RFP1000)** — passerelle radio 433/868 MHz, en **version de test** (voir plus bas).
