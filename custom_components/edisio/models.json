@@ -188,6 +188,19 @@
       "slider": "6C7663#ID##GROUP#011E010004#slider#640D0A"
     }
   },
+  "EMR2000": {
+    "name": "Micro-module EMR-2000 (Marche/Arrêt)",
+    "category": "Micros-Modules Edisio",
+    "platform": "switch",
+    "dimmable": false,
+    "channels": [
+      1
+    ],
+    "frames": {
+      "on": "6C7663#ID##GROUP#011E010001640D0A&&6C7663#ID##GROUP#011E010009640D0A",
+      "off": "6C7663#ID##GROUP#011E010002640D0A&&6C7663#ID##GROUP#011E01001B640D0A"
+    }
+  },
   "119": {
     "name": "EDR-D4 (ON/OFF/Intensité)",
     "category": "Modules Rail DIN",

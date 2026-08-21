@@ -127,6 +127,7 @@ the same paired ID.
 | 115 | Roller shutter module | cover | 1 |
 | 116 | EMSD-300A micro-module (ON/OFF) | light | 1 |
 | 116D | EMSD-300A micro-module (dimmer) | light (dimmer) | 1 |
+| EMR2000 | EMR-2000 micro-module (ON/OFF) | switch | 1 |
 | 119 | EDR-D4 (ON/OFF/dimming) | light (dimmer) | 4 |
 | EDRB4 | EDR-B4 (channel pairs: ON/OFF or cover) | switch **and/or** cover | 4 |
 

@@ -134,6 +134,7 @@ sous le même ID appairé.
 | 115 | Module volet roulant | cover | 1 |
 | 116 | Micro-module EMSD-300A (Marche/Arrêt) | light | 1 |
 | 116D | Micro-module EMSD-300A (Variateur) | light (variateur) | 1 |
+| EMR2000 | Micro-module EMR-2000 (Marche/Arrêt) | switch | 1 |
 | 119 | EDR-D4 (ON/OFF/Intensité) | light (variateur) | 4 |
 | EDRB4 | EDR-B4 (paires de voies : ON/OFF ou Volet) | switch **et/ou** cover | 4 |
 
