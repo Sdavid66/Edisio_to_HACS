@@ -97,11 +97,38 @@ individually.
 
 > Receivers added before v1.7.0 (via *Configure*) keep working unchanged.
 
-**Pairing**: put the receiver into **learning mode** (module button → blinking
-LED), then press the **"Appairer" (Learn) button** on the device in Home Assistant.
-It sends the learning frame with the **model's correct MID** (e.g. `01` for
-micro-modules, `05` for DIN rail) — no setup needed. *(The `edisio.learn` service
-is still available; pass `emitter_mid` if needed.)*
+#### Pairing a receiver — the "Appairer" (Learn) button
+
+**Why.** A receiver (micro-module, DIN rail…) only obeys the emitters it has
+**memorised**. The integration generates a **virtual emitter** for each receiver (its
+*Edisio ID*), so you must **teach that emitter to the module, once**. That's what the
+**"Appairer" (Learn) button** does (category *Configuration*), present on every receiver
+device.
+
+**What it does — and what it isn't.** When pressed, it **transmits** (TX) a single Edisio
+learning frame (`…09<MID>1F000010…`) from the device's virtual emitter, with the **correct
+MID read automatically from the model** (e.g. `01` micro-modules, `05` DIN rail) — no
+setup. It's a **one-shot** send (3 repeats): it **listens to nothing**, opens no window,
+changes no state in HA.
+
+> ⚠️ **Not to be confused with inclusion mode.** **Inclusion** = HA *listens* (RX) to
+> **discover emitters** (remotes, sensors). The **"Appairer"** button = HA *transmits*
+> (TX) so a **receiver** memorises HA. Rule of thumb: **emitter → inclusion, receiver →
+> Appairer**.
+
+**How to use it:**
+1. Put the **module** into learning mode (see its manual: usually a press on its button →
+   blinking LED / beeps).
+2. Within its window (~10 s), **click "Appairer"** on the device in HA
+   (**Settings → Devices & services → Edisio →** the device).
+3. The module confirms (LED/beep). Then test the entity (ON/OFF, up/down…).
+
+**Good practice:** one module at a time, in a quiet moment; **don't operate any remote**
+during those few seconds (the module memorises the first *active* emitter it receives).
+Passive sensors (e.g. ETS-200) send data, not learning frames → they don't interfere.
+
+> The `edisio.learn` service remains available for advanced cases (`edisio_id`, explicit
+> `emitter_mid`).
 
 ## Supported receiver models (exact catalog frames)
 
