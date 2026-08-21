@@ -66,6 +66,19 @@ def expand_channels(data: dict) -> list[dict]:
     ]
 
 
+def model_emitter_mid(model: dict) -> str:
+    """MID (octet du type d'emetteur emule) d'un modele, lu dans ses trames.
+
+    Les templates ont la forme ``6C7663#ID##GROUP#<MID>1E0100...`` : l'octet
+    juste apres ``#GROUP#`` est le MID. Sert a envoyer la trame d'apprentissage
+    avec le bon MID (ex. ``01`` pour les micro-modules, ``05`` pour le rail DIN).
+    """
+    for frame in (model.get("frames") or {}).values():
+        if "#GROUP#" in frame:
+            return frame.split("#GROUP#", 1)[1][:2]
+    return "04"
+
+
 class EdisioReceiver(Entity):
     """Base : detient la config, le modele et l'emission de trames."""
 
@@ -135,3 +148,30 @@ class EdisioReceiver(Entity):
                 groups.append((sub_id, chans))
 
         return groups
+
+    @staticmethod
+    def receiver_modules(entry) -> list[tuple[str | None, dict]]:
+        """Un couple ``(sub_id, data_module)`` par recepteur, dedupe par ID.
+
+        Sert au bouton d'appairage : une entree par module physique (peu importe
+        le nombre de voies), qu'il vienne des options « legacy » ou d'une
+        sous-entree. Les telecommandes (sans modele) sont ignorees.
+        """
+        out: list[tuple[str | None, dict]] = []
+        seen: set[str] = set()
+
+        def _add(sub_id: str | None, data: dict) -> None:
+            if not models.model(data.get(CONF_MODEL)):
+                return
+            eid = data.get(CONF_EDISIO_ID)
+            if not eid or eid in seen:
+                return
+            seen.add(eid)
+            out.append((sub_id, data))
+
+        for d in entry.options.get(CONF_DEVICES, []):
+            _add(None, d)
+        for sub_id, sub in entry.subentries.items():
+            if sub.subentry_type == SUBENTRY_TYPE_DEVICE:
+                _add(sub_id, dict(sub.data))
+        return out
