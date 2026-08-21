@@ -97,9 +97,11 @@ individually.
 
 > Receivers added before v1.7.0 (via *Configure*) keep working unchanged.
 
-**Pairing**: put the receiver into learning mode, then call the `edisio.learn`
-service with the entity's `edisio_id` (or simply operate the entity during the
-learning window).
+**Pairing**: put the receiver into **learning mode** (module button → blinking
+LED), then press the **"Appairer" (Learn) button** on the device in Home Assistant.
+It sends the learning frame with the **model's correct MID** (e.g. `01` for
+micro-modules, `05` for DIN rail) — no setup needed. *(The `edisio.learn` service
+is still available; pass `emitter_mid` if needed.)*
 
 ## Supported receiver models (exact catalog frames)
 

@@ -103,9 +103,11 @@ ensuite **reconfigurable** (nom/ID) et **supprimable** individuellement.
 > Les récepteurs ajoutés avant la v1.7.0 (via *Configurer*) restent pris en
 > charge sans rien changer.
 
-**Appairage** : mettre le récepteur en apprentissage, puis appeler le service
-`edisio.learn` avec l'`edisio_id` de l'entité (ou simplement actionner l'entité
-pendant la fenêtre d'apprentissage).
+**Appairage** : mettre le récepteur en **apprentissage** (bouton du module → LED
+qui clignote), puis **appuyer sur le bouton « Appairer »** de l'appareil dans Home
+Assistant. Il envoie la trame d'apprentissage avec le **bon MID lu dans le modèle**
+(ex. `01` pour les micro-modules, `05` pour le rail DIN) — plus aucun réglage. *(Le
+service `edisio.learn` reste disponible ; préciser `emitter_mid` si besoin.)*
 
 
 ## Modèles de récepteurs pris en charge (trames exactes du catalogue)

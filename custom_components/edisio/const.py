@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 DOMAIN = "edisio"
-PLATFORMS = ["switch", "light", "cover", "select", "sensor", "binary_sensor", "event"]
+PLATFORMS = ["switch", "light", "cover", "select", "sensor", "binary_sensor", "event", "button"]
 
 # Type de sous-entree (bouton « Ajouter un appareil » sur la page d'integration)
 SUBENTRY_TYPE_DEVICE = "device"
