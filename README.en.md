@@ -38,7 +38,7 @@ dependency.
 > validated bit-for-bit against the original templates (see `tests/test_protocol.py`).
 
 ## Hardware
-<img align="right" width="190" src="images/dongle-edisio.jpg" alt="Edisio USB dongle 868 MHz">
+<img align="right" width="190" src="images/edisio-clef-usb-a-edisio-868mhz.jpg" alt="Edisio USB dongle 868 MHz">
 
 - **Edisio USB dongle** (Prolific PL2303 `067B:2303` or FTDI FT232 `0403:6001`), 9600 baud.
 - **GCE RFPlayer (RFP1000)** — 433/868 MHz radio gateway, in **test/beta** (see below).
