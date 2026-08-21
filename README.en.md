@@ -84,7 +84,7 @@ To add one later: device page → **Reconfigure**.
 In **inclusion mode**, a received frame shows a discovery card:
 - `event.edisio_<id>_telecommande`: button presses (types `on/off/toggle/up/down/stop`)
   → ideal to trigger automations.
-- `sensor.edisio_<id>_batterie` and `…_temperature` (MID 08 sensors).
+- `sensor.edisio_<id>_batterie` and `…_temperature` (MID 08 sensors, e.g. the **ETS-200 temperature sensor**: °C temperature + battery).
 - `binary_sensor.edisio_<id>_etat`: last ON/OFF state (contacts, switches).
 
 ### Receiver modules (lights, shutters) — added manually
