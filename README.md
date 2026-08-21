@@ -89,7 +89,7 @@ ajouter un plus tard : fiche de l'appareil → **Reconfigurer**.
 En **mode inclusion**, une trame reçue fait apparaître une carte de découverte :
 - `event.edisio_<id>_telecommande` : appui des boutons (types `on/off/toggle/up/down/stop`)
   → idéal pour déclencher des automatisations.
-- `sensor.edisio_<id>_batterie` et `…_temperature` (sondes MID 08).
+- `sensor.edisio_<id>_batterie` et `…_temperature` (sondes MID 08, ex. **capteur de température ETS-200** : température °C + batterie, décodage identique à Jeedom).
 - `binary_sensor.edisio_<id>_etat` : dernier état ON/OFF (contacts, interrupteurs).
 
 ### Modules récepteurs (lumières, volets) — à ajouter manuellement
