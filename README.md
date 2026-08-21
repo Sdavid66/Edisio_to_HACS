@@ -103,11 +103,39 @@ ensuite **reconfigurable** (nom/ID) et **supprimable** individuellement.
 > Les récepteurs ajoutés avant la v1.7.0 (via *Configurer*) restent pris en
 > charge sans rien changer.
 
-**Appairage** : mettre le récepteur en **apprentissage** (bouton du module → LED
-qui clignote), puis **appuyer sur le bouton « Appairer »** de l'appareil dans Home
-Assistant. Il envoie la trame d'apprentissage avec le **bon MID lu dans le modèle**
-(ex. `01` pour les micro-modules, `05` pour le rail DIN) — plus aucun réglage. *(Le
-service `edisio.learn` reste disponible ; préciser `emitter_mid` si besoin.)*
+#### Appairer un récepteur — le bouton « Appairer »
+
+**Pourquoi.** Un récepteur (micro-module, rail DIN…) n'obéit qu'aux émetteurs qu'il a
+**mémorisés**. L'intégration génère pour chaque récepteur un **émetteur virtuel** (son
+*ID Edisio*) : il faut donc **apprendre cet émetteur au module, une fois**. C'est le
+rôle du bouton **« Appairer »** (catégorie *Configuration*), présent sur chaque appareil
+récepteur.
+
+**Ce qu'il fait — et ce qu'il n'est pas.** À l'appui, il **émet** (TX) une seule trame
+d'apprentissage Edisio (`…09<MID>1F000010…`) depuis l'émetteur virtuel de l'appareil,
+avec le **bon MID lu automatiquement dans le modèle** (ex. `01` micro-modules, `05` rail
+DIN) — aucun réglage. C'est un envoi **ponctuel** (3 répétitions) : il **n'écoute rien**,
+n'ouvre aucune fenêtre et ne change aucun état dans HA.
+
+> ⚠️ **À ne pas confondre avec le mode inclusion.** L'**inclusion** = HA *écoute* (RX)
+> pour **découvrir des émetteurs** (télécommandes, sondes). Le bouton **« Appairer »** =
+> HA *émet* (TX) pour qu'un **récepteur** mémorise HA. Règle simple : **émetteur →
+> inclusion, récepteur → Appairer**.
+
+**Comment l'utiliser :**
+1. Mets le **module** en apprentissage (voir sa notice : en général un appui sur son
+   bouton → LED qui clignote / bips).
+2. Pendant sa fenêtre (~10 s), **clique sur « Appairer »** sur l'appareil dans HA
+   (**Paramètres → Appareils et services → Edisio →** l'appareil).
+3. Le module confirme (LED/bip). Teste ensuite l'entité (ON/OFF, montée/descente…).
+
+**Bonnes pratiques :** un module à la fois, dans un moment calme ; **n'actionne pas de
+télécommande** pendant ces quelques secondes (le module mémorise le premier émetteur
+*actif* qu'il reçoit). Les sondes passives (ex. ETS-200) envoient des données, pas
+d'apprentissage → elles n'interfèrent pas.
+
+> Le service `edisio.learn` reste disponible pour les cas avancés (`edisio_id`,
+> `emitter_mid` explicite).
 
 
 ## Modèles de récepteurs pris en charge (trames exactes du catalogue)
