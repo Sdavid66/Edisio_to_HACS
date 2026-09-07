@@ -27,28 +27,42 @@ import re
 INIT_COMMANDS = ["FORMAT JSON", "FREQ H 868350"]
 
 # action du catalogue Edisio  ->  ordre ZIA
+# NB : le RFPlayer n'a PAS de commande volet dediee (SHUTTER_OPEN/CLOSE/STOP) en
+# ZIA. Un volet se pilote donc en ON (montee) / OFF (descente). L'ARRET en cours
+# de course n'est PAS realisable via le RFPlayer : aucun verbe ZIA ne mappe les
+# codes Edisio SHUTTER_STOP (0x0B) / DIM-STOP (0x08), et re-appui / TOGGLE / DIM /
+# sens oppose n'arretent pas le module (teste sur materiel). "stop" n'est donc pas
+# traduit (no-op cote RFPlayer) ; sur le dongle transparent, le vrai stop est emis.
 _ACTION_ZIA = {
     "on": "ON", "off": "OFF", "toggle": "TOGGLE",
-    "open": "ON", "close": "OFF", "stop": "STOP",
+    "open": "ON", "close": "OFF",
     "up": "ON", "down": "OFF",
     "heat_on": "ON", "heat_off": "OFF", "heat_other": "DIM",
 }
 
-# Actions correspondant au bouton « OFF » (pair) d'une paire Edisio ; les autres
-# tombent sur le bouton « ON » (impair). Voir _qualifier().
-_OFF_ACTIONS = {"off", "close", "down", "stop", "heat_off"}
+# Bouton « OFF » (pair) d'une paire Edisio lumiere/interrupteur ; l'autre tombe
+# sur le bouton « ON » (impair). Voir _qualifier().
+_OFF_ACTIONS = {"off", "heat_off"}
+
+# Volet : montee/descente/stop passent tous par le MEME bouton Edisio ; c'est la
+# commande (ON=montee, OFF=descente, TOGGLE=stop) qui porte le sens - et non deux
+# boutons distincts comme pour une lumiere. Voir _qualifier().
+_COVER_ACTIONS = {"open", "close", "stop", "up", "down"}
 
 
 def _qualifier(action: str, group: int) -> int:
     """Numero de bouton Edisio (QUALIFIER RFPlayer) pour une action + un canal.
 
-    Les emetteurs Edisio ont des boutons par PAIRES : ON = bouton impair,
-    OFF = bouton pair. Canal 1 -> ON=1/OFF=2, canal 2 -> ON=3/OFF=4, etc.
-    Confirme sur materiel reel : l'extinction d'un module mono-canal repond au
-    QUALIFIER 2 (et l'allumage au QUALIFIER 1). Envoyer le meme qualifier pour
-    ON et OFF (l'ancien comportement = le canal brut) empechait l'extinction.
+    Lumiere/interrupteur : boutons par PAIRES -> ON = bouton impair, OFF = pair.
+    Canal 1 -> ON=1/OFF=2, canal 2 -> ON=3/OFF=4, etc. (confirme sur materiel :
+    un module mono-canal s'eteint au QUALIFIER 2 et s'allume au QUALIFIER 1).
+    Volet : montee/descente/stop partagent le MEME bouton (impair du canal), le
+    sens venant de ON/OFF. Les stores EDR-B4 sont cables sur les voies paires ->
+    canal 2 => QUALIFIER 3 pour monter ET descendre (confirme sur materiel reel).
     """
     base = 2 * (max(1, int(group)) - 1)
+    if action in _COVER_ACTIONS:
+        return base + 1
     return base + (2 if action in _OFF_ACTIONS else 1)
 
 # subTypeMeaning RFPlayer  ->  valeur logique (comme protocol.DECODE_VALUE)
