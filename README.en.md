@@ -12,9 +12,6 @@
 > ☕ Do you find this project useful? You can **[buy me a coffee](https://buymeacoffee.com/sdavid66)**
 > to support its development — thanks!
 
-> ℹ️ **Not yet in the default HACS store.** Install the integration as a **custom
-> repository** (see below). Publishing to the official store will happen later.
-
 ## Installation via HACS (recommended)
 
 1. Make sure [HACS](https://hacs.xyz) is installed.
