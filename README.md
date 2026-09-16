@@ -12,10 +12,6 @@
 > ☕ Ce projet vous est utile ? Vous pouvez **[m'offrir un café](https://buymeacoffee.com/sdavid66)**
 > pour soutenir son développement — merci !
 
-> ℹ️ **Pas encore dans le magasin HACS par défaut.** Installez l'intégration en
-> **dépôt personnalisé** (voir ci-dessous). La publication dans le magasin
-> officiel se fera plus tard.
-
 ## Installation via HACS (recommandé)
 
 1. Assurez-vous que [HACS](https://hacs.xyz) est installé.
