@@ -9,6 +9,7 @@ from typing import Callable
 
 import serial_asyncio_fast as serial_asyncio
 
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry, SOURCE_INTEGRATION_DISCOVERY
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -29,9 +30,15 @@ _LOGGER = logging.getLogger(__name__)
 _HEADER = bytes.fromhex(protocol.HEADER)
 _FOOTER = bytes.fromhex(protocol.FOOTER)
 
-# Reconnexion serie : backoff exponentiel borne (secondes).
-_RECONNECT_MIN = 5
-_RECONNECT_MAX = 60
+# Reconnexion serie : backoff exponentiel borne (secondes). Plafond volontairement
+# court : un decrochage USB bref (la clef FTDI se re-enumere souvent en quelques
+# secondes) se retablit alors tout seul en ~10 s au lieu d'attendre jusqu'a 1 min.
+_RECONNECT_MIN = 3
+_RECONNECT_MAX = 15
+# Echecs de reconnexion consecutifs avant d'alerter l'utilisateur : evite une
+# notification pour un simple blip qui se soigne seul en quelques secondes.
+_NOTIFY_AFTER_FAILURES = 3
+_NOTIFY_ID = "edisio_serial_disconnected"
 
 # Repertoire des liens stables par identifiant materiel (Linux).
 _SERIAL_BY_ID = "/dev/serial/by-id"
@@ -189,6 +196,8 @@ class EdisioGateway:
         self._closing = False
         self._reconnect_task = None
         self._reconnect_delay = _RECONNECT_MIN
+        self._reconnect_failures = 0
+        self._notif_shown = False
         # etat expose aux entites de diagnostic du hub
         self.connected = False
         self.frames_received = 0
@@ -265,14 +274,21 @@ class EdisioGateway:
                          self.port, self.dongle, baudrate)
             self.connected = True
             self._reconnect_delay = _RECONNECT_MIN  # succes -> reinitialise le backoff
+            self._reconnect_failures = 0
+            self._clear_disconnect_notification()
             self._notify_status()
             if rfplayer_mode:
                 for command in rfplayer.INIT_COMMANDS:
                     self._write_line(command)
         except Exception as err:  # noqa: BLE001
-            _LOGGER.error("Ouverture du port %s impossible : %s", self.port, err)
+            self._reconnect_failures += 1
+            # ERROR au 1er echec de l'episode puis DEBUG : evite le spam de log si
+            # la clef reste debranchee longtemps (on retente toutes les ~15 s).
+            log = _LOGGER.error if self._reconnect_failures == 1 else _LOGGER.debug
+            log("Ouverture du port %s impossible : %s", self.port, err)
             self.connected = False
             self._notify_status()
+            self._maybe_notify_disconnect()
             self._schedule_reconnect()
 
     def _write_line(self, command: str) -> None:
@@ -308,6 +324,31 @@ class EdisioGateway:
         self._notify_status()
         if not self._closing:
             self._schedule_reconnect()
+
+    def _maybe_notify_disconnect(self):
+        """Alerte l'utilisateur si la clef reste injoignable (pas pour un blip)."""
+        if self._notif_shown or self._reconnect_failures < _NOTIFY_AFTER_FAILURES:
+            return
+        self._notif_shown = True
+        persistent_notification.async_create(
+            self.hass,
+            (
+                f"La passerelle Edisio ne repond plus sur le port serie "
+                f"(`{self.port}`).\n\nReconnexion automatique en cours… Si le "
+                "probleme persiste, verifiez le branchement USB et l'alimentation "
+                "(un hub USB alimente resout souvent ces coupures)."
+            ),
+            title="Edisio : clef deconnectee",
+            notification_id=_NOTIFY_ID,
+        )
+
+    def _clear_disconnect_notification(self):
+        """Efface la notification de deconnexion quand la clef revient."""
+        if not self._notif_shown:
+            return
+        self._notif_shown = False
+        persistent_notification.async_dismiss(self.hass, _NOTIFY_ID)
+        _LOGGER.info("Passerelle Edisio reconnectee sur %s", self.port)
 
     def _schedule_reconnect(self):
         if self._closing or (self._reconnect_task and not self._reconnect_task.done()):
