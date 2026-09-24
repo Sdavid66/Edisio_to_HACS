@@ -271,6 +271,10 @@ Trame (≥ 16 octets), 9600 8N1 :
 - Batterie : `pct = round((octet / 3.3) × 10)` (3,3 V ⇒ 100 %).
 - Température (MID 08) : `int(DATA[3:4] + DATA[0:2], 16) / 100`.
 - Émission : trame complète écrite **3 fois** espacées de 140 ms.
+- Écoute avant émission (dongle Edisio) : avant chaque ordre, la passerelle attend
+  **0,5 s sans réception radio** (3 s au plus si le canal reste occupé) et laisse
+  **0,3 s** entre deux ordres. La clef peut en effet se figer (radio muette, clef
+  USB toujours présente) si on la fait émettre pendant qu'elle reçoit.
 
 ## Limitations
 - Les récepteurs ne renvoient pas leur état : l'état dans HA est **optimiste**.

@@ -74,6 +74,13 @@ SERVICE_IMPORT = "import_jeedom"
 # Delais d'emission (porte du demon Jeedom : 3 envois espaces de 140 ms)
 TX_REPEAT = 3
 TX_DELAY = 0.14
+# Ecoute avant emission (dongle Edisio) : la clef peut se figer si on la fait
+# emettre pendant qu'elle recoit. Avant chaque ordre, on attend TX_RX_QUIET s sans
+# aucun octet recu (au plus TX_RX_MAX_WAIT s si le canal reste occupe) et on laisse
+# TX_COMMAND_GAP s entre deux ordres successifs.
+TX_RX_QUIET = 0.5
+TX_RX_MAX_WAIT = 3.0
+TX_COMMAND_GAP = 0.3
 
 # Inclusion / exclusion
 CONF_DISCOVERED = "discovered"   # liste {id, kinds:[...]} des emetteurs acceptes

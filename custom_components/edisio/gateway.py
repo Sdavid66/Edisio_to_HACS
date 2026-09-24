@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 from typing import Callable
 
 import serial_asyncio_fast as serial_asyncio
@@ -22,8 +23,10 @@ from .const import (
     CONF_BANNED, CONF_DISCOVERED, CONF_DONGLE, DOMAIN, DONGLE_EDISIO,
     DONGLE_RFPLAYER, EVENT_TYPES, INCLUSION_TIMEOUT, KNOWN_USB_IDS,
     RFPLAYER_BAUDRATE, SERIAL_BAUDRATE, SIGNAL_DISCOVERY, SIGNAL_INCLUSION,
-    SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS, TX_DELAY, TX_REPEAT,
+    SIGNAL_REMOVED, SIGNAL_RX, SIGNAL_STATUS, TX_COMMAND_GAP, TX_DELAY,
+    TX_REPEAT, TX_RX_MAX_WAIT, TX_RX_QUIET,
 )
+from .pacing import tx_quiet_remaining
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -112,12 +115,15 @@ class _EdisioProtocol(asyncio.Protocol):
         self._on_lost = on_lost
         self._buf = bytearray()
         self.transport = None
+        # instant (time.monotonic) du dernier octet recu : ecoute avant emission
+        self.last_rx = 0.0
 
     def connection_made(self, transport):
         self.transport = transport
         _LOGGER.debug("Connexion serie Edisio etablie")
 
     def data_received(self, data: bytes) -> None:
+        self.last_rx = time.monotonic()
         self._buf.extend(data)
         while True:
             start = self._buf.find(_HEADER)
@@ -193,6 +199,8 @@ class EdisioGateway:
         self._transport = None
         self._protocol = None
         self._write_lock = asyncio.Lock()
+        # instant (time.monotonic) a partir duquel un nouvel ordre peut partir
+        self._tx_ready_at = 0.0
         self._closing = False
         self._reconnect_task = None
         self._reconnect_delay = _RECONNECT_MIN
@@ -649,6 +657,7 @@ class EdisioGateway:
             _LOGGER.warning("Envoi impossible : port serie ferme")
             return
         async with self._write_lock:
+            await self._wait_tx_slot()
             for frame in frames:
                 if not protocol.is_valid(bytes.fromhex(frame)):
                     _LOGGER.error("Trame a emettre invalide : %s", frame)
@@ -656,10 +665,40 @@ class EdisioGateway:
                 _LOGGER.debug("Edisio TX : %s (x%d)", frame, TX_REPEAT)
                 payload = bytes.fromhex(frame)
                 for i in range(TX_REPEAT):
+                    if self._transport is None:  # port perdu pendant l'emission
+                        _LOGGER.warning("Envoi interrompu : port serie ferme")
+                        return
                     self._transport.write(payload)
                     # 0,14 s entre les 3 répétitions, 0,02 s en fin de trame :
                     # enchaîne vite la 2e trame d'une commande « && » (cf. edisiod.py).
                     await asyncio.sleep(TX_DELAY if i < TX_REPEAT - 1 else 0.02)
+            self._tx_ready_at = time.monotonic() + TX_COMMAND_GAP
+
+    async def _wait_tx_slot(self) -> None:
+        """Ecoute avant emission : ecart entre ordres puis court silence radio.
+
+        La clef Edisio peut se figer si on la fait emettre pendant qu'elle recoit
+        (cf. pacing.py). Seul le debut d'un ordre attend : les trames d'une meme
+        commande « && » restent enchainees. A appeler sous ``_write_lock``.
+        """
+        gap = self._tx_ready_at - time.monotonic()
+        if gap > 0:
+            await asyncio.sleep(gap)
+        started = time.monotonic()
+        while True:
+            last_rx = getattr(self._protocol, "last_rx", 0.0)
+            wait = tx_quiet_remaining(time.monotonic(), last_rx, started,
+                                      TX_RX_QUIET, TX_RX_MAX_WAIT)
+            if wait <= 0:
+                break
+            await asyncio.sleep(wait)
+        waited = time.monotonic() - started
+        if waited >= TX_RX_MAX_WAIT:
+            _LOGGER.debug("Edisio TX : reception continue depuis %.1f s, emission quand meme",
+                          waited)
+        elif waited > 0.01:
+            _LOGGER.debug("Edisio TX differee de %d ms (reception radio en cours)",
+                          waited * 1000)
 
     # ---------------------------------------------------------------- persist
     async def _async_load(self) -> None:

@@ -257,6 +257,10 @@ Frame (≥ 16 bytes), 9600 8N1:
 - Battery: `pct = round((byte / 3.3) × 10)` (3.3 V ⇒ 100 %).
 - Temperature (MID 08): `int(DATA[3:4] + DATA[0:2], 16) / 100`.
 - Transmission: full frame written **3 times**, 140 ms apart.
+- Listen before talk (Edisio dongle): before each command, the gateway waits for
+  **0.5 s without radio reception** (at most 3 s if the channel stays busy) and
+  leaves **0.3 s** between two commands. The key can otherwise freeze (radio
+  silent, USB key still present) when asked to transmit while it is receiving.
 
 ## Limitations
 - Receivers do not report their state: the state in HA is **optimistic**.
